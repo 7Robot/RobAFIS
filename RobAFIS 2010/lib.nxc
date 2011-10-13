@@ -1,0 +1,39 @@
+/*
+ * Code partagé entre le programme et les tests.
+*/
+
+#define CM 9.068
+
+#define LEFT OUT_B // Moteur gauche.
+#define RIGHT OUT_C // Moteur droit.
+#define BOTH OUT_BC
+
+#define LOW 2 // Noir.
+#define HIGH 40 // Blanc.
+
+
+#define BEEP_DURATION 75
+
+void beep()
+{
+	PlayTone(3000, BEEP_DURATION); // Non bloquant.
+}
+
+inline float max(float a, float b)
+{
+	return (a > b) ? a : b;
+}
+
+inline float min(float a, float b)
+{
+	return (a > b) ? b : a;
+}
+/*
+void RotateMotorSafe(byte outputs, char pwr, long angle, char turnpct, bool sync, bool stop)
+{
+    // TODO
+    RotateMotorEx(outputs, pwr, angle, turnpct, sync, stop);
+}
+//*/
+// TODO : afficher statut sur l'écran.
+// TODO : sons

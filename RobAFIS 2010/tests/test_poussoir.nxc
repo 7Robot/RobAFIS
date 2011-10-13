@@ -1,0 +1,21 @@
+/*
+ * Test du bouton poussoir : Bip sur appui.
+ */
+
+#include "lib.nxc"
+
+task main()
+{
+	SetSensorTouch(IN_1);
+	
+    bool last = false;
+	while(true)
+	{
+		if(SENSOR_1 != last)
+        {
+            beep();
+            last = SENSOR_1;
+        }
+	}
+}
+

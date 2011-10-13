@@ -1,0 +1,14 @@
+/*
+ * Test du moteur gauche.
+ */
+
+#include "lib.nxc"
+
+task main()
+{
+	OnFwd(LEFT, 50);
+    
+	while(true)
+        ;
+}
+

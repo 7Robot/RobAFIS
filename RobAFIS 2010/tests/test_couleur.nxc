@@ -1,0 +1,50 @@
+/*
+ * Deux tests de couleur en parallèle :
+ *      en lumière rouge, distinguer {blanc, rouge, noir}
+ *      en lumière bleue, distinguer {blanc, bleu, noir}
+ * 
+ * Valeurs typiques :
+ *        R=  B=
+ * blanc  40  37
+ * noir   3   1
+ * rouge  40  10
+ * bleu   8   30
+ * Donc on distingue le blanc du rouge en lumière bleue.
+ */
+
+#include "lib.nxc"
+
+task main()
+{	
+    int s;
+	while(true)
+	{
+        /* Rouge */
+        SetSensorColorRed(IN_2);
+        Wait(300);
+        s = SENSOR_2;
+        
+        TextOut(0, LCD_LINE1, " R =             ."); // Efface la fin de la ligne.
+ 		NumOut(6*5, LCD_LINE1, s);
+        if(s < 6)
+            TextOut(0, LCD_LINE2, "  Noir");
+        else if (s < 20)
+            TextOut(0, LCD_LINE2, "  Bleu");
+        else
+            TextOut(0, LCD_LINE2, "  Blanc");
+        
+        /* Bleu */
+        SetSensorColorBlue(IN_2);
+        Wait(300);
+        s = SENSOR_2;
+        
+        TextOut(0, LCD_LINE4, " B =             ."); // Efface la fin de la ligne.
+ 		NumOut(6*5, LCD_LINE4, s);
+        if(s < 6)
+            TextOut(0, LCD_LINE5, "  Noir");
+        else if (s < 20)
+            TextOut(0, LCD_LINE5, "  Rouge");
+        else
+            TextOut(0, LCD_LINE5, "  Blanc");
+	}
+}

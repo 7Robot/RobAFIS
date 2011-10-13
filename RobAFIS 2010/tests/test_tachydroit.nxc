@@ -1,0 +1,7 @@
+/*
+ * Test du tachymètres droit, comme le gauche.
+ */
+
+#define TACHY RIGHT
+
+#include "test_tachygauche.nxc" /* Contient le code. */

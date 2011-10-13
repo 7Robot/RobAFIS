@@ -1,0 +1,259 @@
+/* 
+ * Programme pour la coupe RobAFIS.
+ * 
+ * On va vers les éléments, on les pousse, on suit la ligne et on
+ * s'arrête près de la ZT avec le capteur ultra-sons, on fait marche
+ * arrière, on rentre en suivant la ligne.
+ * 
+ * Rappel du câblage :
+ *     Moteur de gauche  B
+ *     Moteur de droite  C
+ *     Bouton poussoir   1
+ *     Capteur couleur   2
+ *     Capteur ultrasons 3
+ */
+
+#ifndef STRATEGIE /* Empêcher une double inclusion. */
+#define STRATEGIE
+
+#if !defined(TARGET_BLUE) && !defined(TARGET_RED)
+#error "Aucune ZT choisie !"
+#elif defined(TARGET_BLUE) && defined(TARGET_RED)
+#error "Deux ZT choisies !"
+#endif
+
+#include "lib.nxc"
+
+
+/* Signatures des fonctions dans l'ordre où elles sont exécutées. */
+task main();
+task panicButton();
+task grabElements();
+task followLine();
+task zoneSelect();
+task backHome();
+task stopRobot();
+
+
+/*
+ * Tâche principale : attend le départ.
+ */
+task main()
+{
+	SetSensorTouch(IN_1);    // Bouton de démarrage.
+	SetSensorColorRed(IN_2); // Rouge précis pour le suivi de ligne.
+	SetSensorLowspeed(IN_3); // Capteur à Utrasons.
+	
+    while(!SENSOR_1) // On attend que le bouton soit enfoncé.
+        ;
+    while(SENSOR_1)
+        ;
+    // Le bouton a été relaché, on démarre.
+	beep();
+    
+    Precedes(panicButton, grabElements);
+}
+
+/*
+ * Gestion du bouton d'arrêt d'urgence.
+ */
+task panicButton()
+{   
+    Wait(500); // On ignore les rebonds du bouton.
+    while(!SENSOR_1) // On attend que le bouton soit enfoncé.
+        ;
+    beep();
+    Coast(BOTH);
+    Wait(100);
+    StopAllTasks();
+}
+
+/* 
+ * Première étape :
+ * Chopper les éléments suivant un parcours fixe, puis se recaler sur
+ * la ligne de droite. Le robot fait intialement face à l'est.
+ * Très sensible à l'état des batteries.
+ */
+task grabElements()
+{	
+    // On avance.
+	RotateMotorEx(BOTH, 80, 11.91 * CM, 0, false, false);
+    
+    // Virage à gauche pour se mettre dans l'axe.
+    RotateMotorEx(BOTH, 70,  75 * CM, 17, true,  false);
+	
+    // On choppe les Éléments.
+    RotateMotorEx(BOTH, 80, 23.7 * CM, 0, false, false);
+	
+    // On évite le coin du Parc Machine en tournant à droite.
+    RotateMotorEx(BOTH, 80, 23.82 * CM, -22, true, false);
+	
+    // On se remet dans l'axe en se rapprochant de la ligne.
+    RotateMotorEx(BOTH, 80, 11.91 * CM, 25, true, false);
+    
+	ExitTo(followLine);
+}
+
+/* 
+ * Deuxième étape :
+ * Suivre le coté gauche de la ligne de droite pour une distance donnée.
+ */
+task followLine()
+{
+    OnFwd(LEFT, 100);
+    OnFwd(RIGHT, 93);
+	Wait(1000); // Attendre d'être aligné avant d'utiliser le capteur US.
+    OnFwd(LEFT, 60);
+    OnFwd(RIGHT, 55);
+	while(SensorUS(IN_3) > 50) // Continuer jusqu'au début du gros virage.
+        ;
+    
+	ExitTo(zoneSelect);
+}
+
+/* 
+ * Troisième étape :
+ * Approcher de la ZT1 si TARGET_BLUE est défini, de la ZT2 sinon.
+ */
+task zoneSelect()
+{
+	#ifdef TARGET_BLUE
+        OnFwd(LEFT, 55);
+        OnFwd(RIGHT, 53);
+        while(SensorUS(IN_3) > 25) // On se rapproche en ralentissant.
+            ;
+        OnFwd(LEFT, 35);
+        OnFwd(RIGHT, 30); // On augmente la précision.
+        while(SensorUS(IN_3) > 16)
+            ;
+        
+        // On tourne à gauche de plus de 45°
+        RotateMotorEx(BOTH, 80, 6.62 * CM, 100, true, false);
+        
+        OnFwd(LEFT, 95); // On se colle au muret.
+        OnFwd(RIGHT, 100); 
+        Wait(500);
+        
+        OnFwd(LEFT, 65);
+        OnFwd(RIGHT, 60); // Et enfin on le suit.
+        
+        while(SENSOR_2 > HIGH / 2) // On atteint la zone bleue.
+            ;
+        
+        RotateMotorEx(BOTH, 50, -23.82 * CM, 100, false, false); // Marche arrière.
+        
+        Off(BOTH);
+        Wait(100); // On s'assure de pas déraper pendant le prochain virage.
+        RotateMotorEx(BOTH, 65, 4.63 * CM, 100, true, false);
+        OnFwd(BOTH, 50); // Pas trop vite pour ne pas dépasser.
+        while(SENSOR_2 > HIGH * 2 / 3) // On arrive sur la ligne noire.
+            ;
+        
+        RotateMotorEx(BOTH, 100, 9.93 * CM, -70, true, false); // On se remet sur la trajectoire Est-Ouest.
+
+    #else
+    
+        OnFwd(LEFT, 55);
+        OnFwd(RIGHT, 50);
+        while(SensorUS(IN_3) > 40) // On se rapproche en ralentissant.
+            ;
+        OnFwd(LEFT, 35);
+        OnFwd(RIGHT, 30);
+        while(SensorUS(IN_3) > 25) // On augmente la précision.
+            ;
+        
+        // On tourne à gauche de ~45°.
+        RotateMotorEx(BOTH, 65, 6.0 * CM, 100, true, false);
+        
+        OnFwd(BOTH, 50); // On avance jusqu'à buter.
+        Wait(750); // Un RotateMotor ne marche pas si les roues sont bloquées.
+        
+        RotateMotorEx(BOTH, 40, -19 * CM, 0, false, false); // Marche arrière.
+        Off(BOTH);
+        Wait(100);
+        RotateMotorEx(BOTH, 45, -6.9 * CM, 100, true, false); // On tourne à gauche.
+        Off(BOTH);
+        Wait(100);
+        
+        OnFwd(LEFT, 80);
+        OnFwd(RIGHT, 79);
+        Wait(1000); // Evite des erreurs de lecture de l'ultrason.
+        
+    /* Version qui rentre à ~45° dans la ZT2
+		while(SensorUS(IN_3) > 28) // On se rapproche à 28cm en ralentissant.
+        {
+            // 20 est la vitesse minimum pour bouger le robot.
+            OnFwd(BOTH, 20 + 2 * min(28, SensorUS(IN_3) - 28));
+        }
+        // On tourne légèrement à gauche.
+        RotateMotorEx(BOTH, 50, 0.16 * 360, 100, true, false);
+        // On se rapproche
+        RotateMotorEx(BOTH, 30, 0.7 * 360, 0, false, false);
+        // On fait marche arrière.
+        RotateMotorEx(BOTH, 100, -0.55 * 360, 0, false, false);
+        // On tourne pour repartir.
+        RotateMotorEx(BOTH, 50, 0.2 * 360, 100, true, false);
+    //*/
+	#endif
+    
+    ExitTo(backHome);
+}
+
+/* 
+ * Dernière étape :
+ * Retour à la case départ en faisant le tour.
+ */
+task backHome()
+{	
+    /* Version suiveur de ligne, moins précise et plus lente.
+    ResetTachoCount(LEFT);
+    while(MotorTachoCount(LEFT) < 1000)
+    {
+		float a = SENSOR_2 - LOW;
+		a /= HIGH - LOW;
+		a = 2 * max(0, min(a, 1)) - 1;
+		// a est maintenant un flottant entre -1 et 1.
+        
+		if(a < 0)
+		{
+			OnFwdEx(LEFT, 55, false);
+			OnFwdEx(RIGHT, 55 + abs(a) * 18, false);
+		}
+		else
+		{
+			OnFwdEx(LEFT, 55 + abs(a) * 18, false);
+			OnFwdEx(RIGHT, 55, false);
+		}
+    }
+    //*/
+    
+    OnFwd(LEFT, 90);
+    OnFwd(RIGHT, 89); // Quitte à dévier quand on vient du rouge, éviter le Parc Machine.
+    while(SensorUS(IN_3) > 40)
+        ;
+    OnFwd(BOTH, 65); // Ralentir pour la précision.
+    while(SensorUS(IN_3) > 28)
+        ;
+    // Il est temps de tourner.
+    RotateMotorEx(BOTH, 90, 26 * CM, 36, true, false);
+    
+    OnFwd(BOTH, 100); // On avance pour que le contact se fasse.
+    Wait(1000);
+    
+    OnFwd(LEFT, 100);
+    OnFwd(RIGHT, 95); // On rentre en restant colés au muret.
+    while(SensorUS(IN_3) > 20)
+        ;
+        
+    ExitTo(stopRobot);
+}
+
+task stopRobot()
+{
+    Off(BOTH);
+    beep();
+    Wait(BEEP_DURATION);
+    StopAllTasks();
+}
+
+#endif /* STRATEGIE */

@@ -1,0 +1,31 @@
+#include "lib.nxc"
+
+int rotateMotorSafeInterval;
+int rotateMotorSafeRound = 0;
+
+task RotateMotorSafeControl()
+{
+    int round = rotateMotorSafeRound;
+    
+    Wait(rotateMotorSafeInterval);
+    
+    if(round == rotateMotorSafeRound)
+    {
+        ResetTachoCount(OUT_BC);
+        beep();
+        Wait(200);
+    }
+}
+
+int RotateMotorSafe(byte outputs, char pwr, long angle, char turnpct, bool sync, bool stoop)
+{
+    rotateMotorSafeInterval = 30 * angle / CM;
+    StartTask(RotateMotorSafeControl);
+    RotateMotorEx(outputs, pwr, angle, turnpct, sync, stoop);
+    rotateMotorSafeRound++;
+}
+
+task main()
+{
+    RotateMotorSafe(OUT_B, 50, 3000, 0, false, false);
+}

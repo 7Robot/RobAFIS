@@ -1,0 +1,7 @@
+/*
+ * Vise la ZT2.
+ */
+
+#define TARGET_RED
+
+#include "strategie.nxc"

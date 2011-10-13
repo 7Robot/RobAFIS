@@ -1,0 +1,18 @@
+/*
+ * Test des tachymètres des moteurs.
+ */
+
+#include "lib.nxc"
+
+#ifndef TACHY
+    #define TACHY LEFT
+#endif
+
+task main()
+{
+    while(true)
+    {
+        NumOut(0, LCD_LINE1, MotorTachoCount(TACHY));
+        Wait(300);
+    }
+}

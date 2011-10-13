@@ -1,0 +1,17 @@
+
+#include "lib.nxc"
+
+task main()
+{
+	SetSensorTouch(IN_1);    // Bouton de démarrage.
+	SetSensorColorRed(IN_2); // Rouge précis pour le suivi de ligne.
+	SetSensorLowspeed(IN_3); // Capteur à Utrasons.
+	
+    while(!SENSOR_1) // On attend que le bouton soit enfoncé.
+        ;
+    while(SENSOR_1)
+        ;
+	RotateMotorEx(OUT_BC, 50, 100 * CM, 0, true, false);
+    Off(OUT_BC);
+    Wait(200);
+}

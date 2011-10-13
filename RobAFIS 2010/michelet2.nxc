@@ -1,0 +1,70 @@
+#define LEFT OUT_B
+#define RIGHT OUT_A
+
+task arretDurgence();
+task execution();
+void beep2();
+void beep1();
+
+task main()
+{
+	SetSensorTouch(IN_1);
+	SetSensorTouch(IN_2);
+	SetSensorLowspeed(IN_3);
+	
+	while(!SENSOR_1);//Demarage
+	while(SENSOR_1);
+	beep1();
+	
+	Precedes(arretDurgence,execution);
+}
+
+task arretDurgence()
+{
+	while(1)
+	{
+		if(SENSOR_1)
+		{
+			beep1();
+			StopAllTasks();
+		}
+	}
+}
+
+task execution()
+{	
+	OnFwd(LEFT, 50);
+   OnFwd(RIGHT, 50);
+	
+	while(true)
+	{
+		if(SensorUS(IN_3) <= 50 || SENSOR_2)
+		{
+			beep2();
+			if(SENSOR_2)
+			{
+				OnFwd(LEFT,-30);
+				OnFwd(RIGHT,-30);
+				Wait(500);
+			}
+			OnFwd(LEFT,30);
+			OnFwd(RIGHT,-30);
+			while(SensorUS(IN_3) <= 50);
+			Wait(300);
+			beep2();
+			OnFwd(LEFT,50);
+			OnFwd(RIGHT,50);
+		}
+	}
+}
+
+void beep1()
+{
+	PlayTone(3000, 200);
+}
+
+void beep2()
+{
+	PlayTone(2000, 200);
+}
+

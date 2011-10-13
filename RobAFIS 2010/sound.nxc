@@ -1,0 +1,524 @@
+
+// 四分音符・休符
+#define DO   PlayTone(220, 400); Wait(500) // A
+#define DOs  PlayTone(233, 400); Wait(500) // A#
+#define LE   PlayTone(247, 400); Wait(500) // B
+#define LEs  PlayTone(262, 400); Wait(500) // C
+#define MI   PlayTone(278, 400); Wait(500) // C#
+#define FA   PlayTone(294, 400); Wait(500) // D
+#define FAs  PlayTone(311, 400); Wait(500) // D#
+#define SO   PlayTone(330, 400); Wait(500) // D
+#define SOs  PlayTone(349, 400); Wait(500) // F
+#define RA   PlayTone(370, 400); Wait(500) // F#
+#define RAs  PlayTone(392, 400); Wait(500) // G
+#define SHI  PlayTone(415, 400); Wait(500) // G#
+#define DO2  PlayTone(440, 400); Wait(500) // A
+#define REST Wait(500)                     // 休符
+
+// 八分音符・休符
+#define Do   PlayTone(220, 200); Wait(255) // A
+#define Dos  PlayTone(233, 200); Wait(255) // A#
+#define Le   PlayTone(247, 200); Wait(255) // B
+#define Les  PlayTone(247, 200); Wait(255) // C
+#define Mi   PlayTone(278, 200); Wait(255) // C#
+#define Fa   PlayTone(294, 200); Wait(255) // D
+#define Fas  PlayTone(311, 200); Wait(255) // D#
+#define So   PlayTone(330, 200); Wait(255) // D
+#define Sos  PlayTone(349, 200); Wait(255) // F
+#define Ra   PlayTone(370, 200); Wait(255) // F#
+#define Ras  PlayTone(392, 200); Wait(255) // G
+#define Shi  PlayTone(415, 200); Wait(255) // G#
+#define Do2  PlayTone(440, 200); Wait(255) // A
+#define Rest Wait(255)                     // 休符
+// | sed "s/ -n/\n/g;s/-f/PlayTone(/g;s/-l/,/g;s/-d/\nWait(/g;s/$/);/mg"
+
+task main()
+{PlayTone( 330 , 137);
+ PlayTone( 330 , 275);
+ PlayTone( 330 , 137 );
+Wait( 137);
+ PlayTone( 262 , 137);
+ PlayTone( 330 , 275);
+ PlayTone( 392 , 550 );
+Wait( 550);
+ PlayTone( 262 , 412);
+ PlayTone( 196 , 137 );
+Wait( 275);
+ PlayTone( 164 , 137 );
+Wait( 137);
+ PlayTone( 220 , 275);
+ PlayTone( 247 , 137 );
+Wait( 137);
+ PlayTone( 233 , 137);
+ PlayTone( 220 , 275);
+ PlayTone( 196 , 205);
+ PlayTone( 330 , 205);
+ PlayTone( 392 , 275);
+ PlayTone( 440 , 275);
+ PlayTone( 349 , 137);
+ PlayTone( 392 , 137 );
+Wait( 137);
+ PlayTone( 330 , 275);
+ PlayTone( 262 , 137);
+ PlayTone( 294 , 137);
+ PlayTone( 247 , 412);
+ PlayTone( 262 , 412);
+ PlayTone( 196 , 137 );
+Wait( 275);
+ PlayTone( 164 , 275 );
+Wait( 137);
+ PlayTone( 220 , 275);
+ PlayTone( 247 , 137 );
+Wait( 137);
+ PlayTone( 233 , 137);
+ PlayTone( 220 , 275);
+ PlayTone( 196 , 205);
+ PlayTone( 330 , 205);
+ PlayTone( 392 , 275);
+ PlayTone( 440 , 275);
+ PlayTone( 349 , 137);
+ PlayTone( 392 , 137 );
+Wait( 137);
+ PlayTone( 330 , 275);
+ PlayTone( 262 , 137);
+ PlayTone( 294 , 137);
+ PlayTone( 247 , 412 );
+Wait( 275);
+ PlayTone( 392 , 137);
+ PlayTone( 370 , 137);
+ PlayTone( 349 , 137);
+ PlayTone( 311 , 275);
+ PlayTone( 330 , 137 );
+Wait( 137);
+ PlayTone( 207 , 137);
+ PlayTone( 220 , 137);
+ PlayTone( 262 , 137 );
+Wait( 137);
+ PlayTone( 220 , 137);
+ PlayTone( 262 , 137);
+ PlayTone( 294 , 137 );
+Wait( 275);
+ PlayTone( 392 , 137);
+ PlayTone( 370 , 137);
+ PlayTone( 349 , 137);
+ PlayTone( 311 , 275);
+ PlayTone( 330 , 137 );
+Wait( 137);
+ PlayTone( 523 , 275);
+ PlayTone( 523 , 137);
+ PlayTone( 523 , 550);
+ PlayTone( 392 , 137);
+ PlayTone( 370 , 137);
+ PlayTone( 349 , 137);
+ PlayTone( 311 , 275);
+ PlayTone( 330 , 137 );
+Wait( 137);
+ PlayTone( 207 , 137);
+ PlayTone( 220 , 137);
+ PlayTone( 262 , 137 );
+Wait( 137);
+ PlayTone( 220 , 137);
+ PlayTone( 262 , 137);
+ PlayTone( 294 , 137 );
+Wait( 275);
+ PlayTone( 311 , 275 );
+Wait( 137);
+ PlayTone( 294 , 275);
+ PlayTone( 262 , 550 );
+Wait( 550);
+    /* Victoire
+  PlayTone(392,120); Wait(160);
+  PlayTone(523,120); Wait(160);
+  PlayTone(659,120); Wait(160);
+  PlayTone(784,120); Wait(160);
+  PlayTone(784,60);  Wait(80);
+  PlayTone(784,60);  Wait(80);
+  PlayTone(784,120); Wait(160);
+  PlayTone(659,120); Wait(160);
+  PlayTone(659,60);  Wait(80);
+  PlayTone(659,60);  Wait(80);
+  PlayTone(659,120); Wait(160);
+  PlayTone(523,120); Wait(160);
+  PlayTone(659,120); Wait(160);
+  PlayTone(523,120); Wait(160);
+  PlayTone(392,360); Wait(480);
+ // */
+  /* erreur
+  PlayTone(440,240);  Wait(300);
+  PlayTone(392,240);  Wait(300);
+  PlayTone(440,960);  Wait(1200);
+  PlayTone(392,240);  Wait(300);
+  PlayTone(349,240);  Wait(300);
+  PlayTone(330,240);  Wait(300);
+  PlayTone(294,240);  Wait(300);
+  PlayTone(277,480);  Wait(600);
+  PlayTone(294,1440); Wait(1800);
+  * */
+  /*
+  OnRev(OUT_BC, 50);
+            PlayTone(1120, 400);
+            Wait(1100);
+            PlayTone(1120, 400);
+            Wait(1100);
+            PlayTone(1120, 400);
+            Wait(1100);
+            PlayTone(1120, 400);*/
+            Wait(500);
+    
+    
+}
+
+void Beep(int f, int d)
+{
+    PlayTone(f, d);
+    Wait(d);
+}
+
+void mario()
+{
+	Beep(1480,200);
+	
+	Beep(1568,200);
+	
+	Beep(1568,200);
+	
+	Beep(1568,200);
+	
+	
+	
+	Beep(739.99,200);
+	
+	Beep(783.99,200);
+	
+	Beep(783.99,200);
+	
+	Beep(783.99,200);
+	
+	
+	
+	Beep(369.99,200);
+	
+	Beep(392,200);
+	
+	Beep(369.99,200);
+	
+	Beep(392,200);
+	
+	Beep(392,400);
+	
+	Beep(196,400);
+	
+	
+	
+	Beep(739.99,200);
+	
+	Beep(783.99,200);
+	
+	Beep(783.99,200);
+	
+	Beep(739.99,200);
+	
+	Beep(783.99,200);
+	
+	Beep(783.99,200);
+	
+	Beep(739.99,200);
+	
+	Beep(783.99,200);
+	
+	Beep(880,200);
+	
+	Beep(830.61,200);
+	
+	Beep(880,200);
+	
+	Beep(987.77,400);
+	
+	
+	Beep(880,200);
+	
+	Beep(783.99,200);
+	
+	Beep(698.46,200);
+	
+	Beep(739.99,200);
+	
+	Beep(783.99,200);
+	
+	Beep(783.99,200);
+	
+	Beep(739.99,200);
+	
+	Beep(783.99,200);
+	
+	Beep(783.99,200);
+	
+	Beep(739.99,200);
+	
+	Beep(783.99,200);
+	
+	Beep(880,200);
+	
+	Beep(830.61,200);
+	
+	Beep(880,200);
+	
+	Beep(987.77,400);
+	
+	  Wait(200);
+	  
+	Beep(1108,10);
+	Beep(1174.7,200);
+	Beep(1480,10);
+	Beep(1568,200);
+
+	
+	Wait(200);
+	Beep(739.99,200);
+	
+	Beep(783.99,200);
+	
+	Beep(783.99,200);
+	
+	Beep(739.99,200);
+	
+	Beep(783.99,200);
+	
+	Beep(783.99,200);
+	
+	Beep(739.99,200);
+	
+	Beep(783.99,200);
+	
+	Beep(880,200);
+	
+	Beep(830.61,200);
+	
+	Beep(880,200);
+	
+	Beep(987.77,400);
+	
+	
+	Beep(880,200);
+	
+	Beep(783.99,200);
+	
+	Beep(698.46,200);
+	
+	
+	Beep(659.25,200);
+	
+	Beep(698.46,200);
+	
+	Beep(784,200);
+	
+	Beep(880,400);
+	
+	Beep(784,200);
+	
+	Beep(698.46,200);
+	
+	Beep(659.25,200);
+	
+	
+	
+	Beep(587.33,200);
+	
+	Beep(659.25,200);
+	
+	Beep(698.46,200);
+	
+	Beep(784,400);
+	
+	Beep(698.46,200);
+	
+	Beep(659.25,200);
+	
+	Beep(587.33,200);
+	
+	
+	
+	Beep(523.25,200);
+	
+	Beep(587.33,200);
+	
+	Beep(659.25,200);
+	
+	Beep(698.46,400);
+	
+	Beep(659.25,200);
+	
+	Beep(587.33,200);
+	
+	Beep(493.88,200);
+	
+	Beep(523.25,200);
+	
+	
+	Wait(400);
+	Beep(349.23,400);
+	
+	Beep(392,200);
+	
+	Beep(329.63,200);
+	
+	Beep(523.25,200);
+	
+	Beep(493.88,200);
+	
+	Beep(466.16,200);
+	
+	
+	
+	Beep(440,200);
+	
+	Beep(493.88,200);
+	
+	Beep(523.25,200);
+	
+	Beep(880,200);
+	
+	Beep(493.88,200);
+	
+	Beep(880,200);
+	
+	Beep(1760,200);
+	
+	Beep(440,200);
+	
+	
+	
+	Beep(392,200);
+	
+	Beep(440,200);
+	
+	Beep(493.88,200);
+	
+	Beep(783.99,200);
+	
+	Beep(440,200);
+	
+	Beep(783.99,200);
+	
+	Beep(1568,200);
+	
+	Beep(392,200);
+	
+	
+	
+	Beep(349.23,200);
+	
+	Beep(392,200);
+	
+	Beep(440,200);
+	
+	Beep(698.46,200);
+	
+	Beep(415.2,200);
+	
+	Beep(698.46,200);
+	
+	Beep(1396.92,200);
+	
+	Beep(349.23,200);
+	
+	
+	
+	Beep(329.63,200);
+	
+	Beep(311.13,200);
+	
+	Beep(329.63,200);
+	
+	Beep(659.25,200);
+	
+	Beep(698.46,400);
+	
+	Beep(783.99,400);
+	
+	
+	
+	Beep(440,200);
+	
+	Beep(493.88,200);
+	
+	Beep(523.25,200);
+	
+	Beep(880,200);
+	
+	Beep(493.88,200);
+	
+	Beep(880,200);
+	
+	Beep(1760,200);
+	
+	Beep(440,200);
+	
+	
+	
+	Beep(392,200);
+	
+	Beep(440,200);
+	
+	Beep(493.88,200);
+	
+	Beep(783.99,200);
+	
+	Beep(440,200);
+	
+	Beep(783.99,200);
+	
+	Beep(1568,200);
+	
+	Beep(392,200);
+	
+	
+	
+	Beep(349.23,200);
+	
+	Beep(392,200);
+	
+	Beep(440,200);
+	
+	Beep(698.46,200);
+	
+	Beep(659.25,200);
+	
+	Beep(698.46,200);
+	
+	Beep(739.99,200);
+	
+	Beep(783.99,200);
+	
+	Beep(392,200);
+	
+	Beep(392,200);
+	
+	Beep(392,200);
+	
+	Beep(392,200);
+	
+	Beep(196,200);
+	
+	Beep(196,200);
+	
+	Beep(196,200);
+	
+	
+	
+	Beep(185,200);
+	
+	Beep(196,200);
+	
+	Beep(185,200);
+	
+	Beep(196,200);
+	
+	Beep(207.65,200);
+	
+	Beep(220,200);
+	
+	Beep(233.08,200);
+	
+	Beep(246.94,200);
+}

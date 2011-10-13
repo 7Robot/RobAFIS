@@ -1,0 +1,18 @@
+/*
+ * Test du capteur Ultra-sons : la distance mesurée en centimètres doit
+ * s'afficher sur l'écran.
+ */
+
+#include "lib.nxc"
+
+task main()
+{
+	SetSensorLowspeed(IN_3);
+	
+	while(true)
+	{
+		ClearScreen();
+		NumOut(0, LCD_LINE1, SensorUS(IN_3));
+		Wait(300);
+	}
+}
