@@ -15,6 +15,7 @@ Le robot ne sait pas encore :
 - reculer en suivant une ligne pendant un certain temps
 - suivre une ligne (en avancant ou en reculant) jusqu'à ce que l'on arrive sur un carrefour puis s'arrêter
 - avancer en suivant une ligne juqu'à une certaine distance d'un mur
+- avancer jusqu'à ce qu'il rencontre une ligne
 - chercher une ligne
 - détecter un obstacle
 - détecter la couleur d'une intersection
