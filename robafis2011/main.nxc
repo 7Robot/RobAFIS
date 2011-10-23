@@ -174,13 +174,11 @@ int suitLaLigne(int temps, int vitesse, bool enAvancant) // à droite de la lign
 blanc   -> noir
 */
 // suit la ligne à droite
-    int valeurGauche = 25;
-    int valeurDroite = 35;
+    int valeurGauche = 25; // proche du noir
+    int valeurDroite = 35; // proche du blanc
     if(!enAvancant)
     {
         vitesse = -vitesse;
-
-
     }
     tourne(MOTEUR_DROIT, vitesse);
     tourne(MOTEUR_GAUCHE, vitesse);
@@ -193,17 +191,27 @@ blanc   -> noir
             tourne(MOTEUR_DROIT, vitesse);
             tourne(MOTEUR_GAUCHE, vitesse);
         }
-        else if (valeurVisuel < valeurGauche)
-            tourne(MOTEUR_DROIT, vitesse * ((valeurVisuel - NOIR)/(valeurGauche-NOIR)));
-        else if (valeurVisuel > valeurDroite)
-            tourne(MOTEUR_GAUCHE, vitesse * ((BLANC - valeurVisuel)/(BLANC-valeurDroite)));
-        if(valeurVisuel < (NOIR+2) || valeurVisuel > (BLANC-2))
+        else if (valeurVisuel < valeurGauche) // On est à gauche, le moteur droit ralentit
         {
-            afficheErreur("perte de la ligne");
-            tempsPasse = temps;
+            int vitesseCalculee = vitesse * 2 * ((valeurVisuel - NOIR)/(valeurGauche-NOIR));
+            // On doit avoir
+            /*
+            valeurGauche - truc1 / truc2 = 1
+            et NOIR - truc1 /truc2 = -1
+            // Je résoudrai ca demain
+
+
+            */
+            tourne(MOTEUR_DROIT, vitesseCalculee);
         }
-        else
-            tempsPasse = CurrentTick() - tempsDepart;
+        else if (valeurVisuel > valeurDroite) // On est à droite, le moteur gauche ralentit
+        {
+            tourne(MOTEUR_GAUCHE, vitesse * ((BLANC - valeurVisuel)/(BLANC-valeurDroite)));
+        }
+        if(valeurVisuel < (NOIR+2) || valeurVisuel > (BLANC-2))
+            afficheErreur("perte de la ligne");
+
+        tempsPasse = CurrentTick() - tempsDepart;
     }
     stopMoteur();
 

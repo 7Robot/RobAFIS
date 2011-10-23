@@ -44,6 +44,7 @@
 		<Compiler>
 			<Add option="-Wall" />
 		</Compiler>
+		<Unit filename="main.h" />
 		<Unit filename="main.nxc" />
 		<Extensions>
 			<envvars />
