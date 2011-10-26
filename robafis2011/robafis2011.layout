@@ -2,21 +2,21 @@
 <CodeBlocks_layout_file>
 	<ActiveTarget name="Debug" />
 	<File name="lib.h" open="1" top="0" tabpos="6">
-		<Cursor position="12" topLine="0" />
+		<Cursor position="672" topLine="0" />
 	</File>
 	<File name="lib.nxc" open="1" top="0" tabpos="5">
-		<Cursor position="206" topLine="0" />
+		<Cursor position="1543" topLine="60" />
 	</File>
-	<File name="main.h" open="1" top="1" tabpos="2">
-		<Cursor position="1619" topLine="14" />
+	<File name="main.h" open="1" top="0" tabpos="2">
+		<Cursor position="1693" topLine="0" />
 	</File>
 	<File name="main.nxc" open="1" top="0" tabpos="1">
-		<Cursor position="15" topLine="30" />
+		<Cursor position="542" topLine="3" />
 	</File>
 	<File name="suiveur.h" open="1" top="0" tabpos="4">
-		<Cursor position="16" topLine="0" />
+		<Cursor position="412" topLine="0" />
 	</File>
 	<File name="suiveur.nxc" open="1" top="0" tabpos="3">
-		<Cursor position="18" topLine="0" />
+		<Cursor position="4221" topLine="144" />
 	</File>
 </CodeBlocks_layout_file>

@@ -3,7 +3,7 @@
 
 /*
 
-codé pour la compétition robAfis 2011 pour l'équipe 7robot de l'N7.
+codé pour la compétition robAfis 2011 pour le club 7robot de l'N7.
 Le robot sait :
 - utiliser les moteurs
 - utiliser les capteurs
@@ -38,8 +38,9 @@ Quelques ajouts/différences par rapport au C :
  - Wait au lieu de sleep
  - mot clef task
  - plusieurs fonctions de la bibiothèque C standard sont inconnues (par exemple sprintf)
- - les pointeurs n'existent pas ...??????????
+ - les pointeurs n'existent pas.
  - les références existent.
+ - pas de type double
 
  - Toutes les fontions utilisables sont documentées ici :
  http://bricxcc.sourceforge.net/nbc/nxcdoc/nxcapi/
@@ -54,20 +55,23 @@ Quelques ajouts/différences par rapport au C :
 
 #define MOTEUR_GAUCHE       OUT_A
 #define MOTEUR_DROIT        OUT_B
+#define MOTEURS             OUT_AB
 #define PINCE               OUT_C
 
 #define INFINI              3600000     // une heure
 #define MAX                 100         // 100%
 #define MIN                 0           // 0%
-#define ANGLE_PINCE         40
+#define ANGLE_PINCE         50          // 40°
+#define VITESSE_PINCE       30
+#define ANGLE_QUART_DE_TOUR 1000        // à déterminer
 #define NOIR                10
 #define BLANC               50
 
 void mission();
 
-void vaChercherPetit();
-void vaChercherGrand();
-void ramene();
-void rentre();
+void rameneCentre1();
+void rameneCentre2();
+void stockePetit();
+void stockeGrand();
 
 #endif

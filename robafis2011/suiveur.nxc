@@ -13,7 +13,7 @@ blanc   -> noir
 #include "main.h"
 #include "lib.h"
 
-void suitLaLigneEnAvancant(int temps, int vitesse) // à droite de la ligne
+void suitLaLigneEnAvancant(int temps, int vitesse, bool droite = true) // à priori à droite de la ligne
 {
     int tempsDepart = CurrentTick();
     int tempsPasse = 0;
@@ -23,7 +23,6 @@ void suitLaLigneEnAvancant(int temps, int vitesse) // à droite de la ligne
 50      -> 10
 blanc   -> noir
 */
-// suit la ligne à droite
 
     tourne(MOTEUR_DROIT, vitesse);
     tourne(MOTEUR_GAUCHE, vitesse);
@@ -31,61 +30,147 @@ blanc   -> noir
     {
         afficheErreurInt(tempsPasse);
         valeurVisuel =  Sensor(CAPTEUR_VISUEL);
-        if(!determineVitesseMoteur(valeurVisuel, vitesse))
+        if(!determineVitesseMoteur(valeurVisuel, vitesse, droite))
             afficheErreur("perte de la ligne");
-
+        // On recalcule le temps passé à chaque tour.
         tempsPasse = CurrentTick() - tempsDepart;
     }
     stopMoteur();
 
 }
+void suitLaLigneEnAvancantDistance(int distance, int vitesse, bool droite = true) // à priori à droite de la ligne
+{
+
+    int valeurVisuel;
+    int valeurUltra = SensorUS(CAPTEUR_ULTRA);
+    /*Capteur rouge :
+50      -> 10
+blanc   -> noir
+*/
+
+    tourne(MOTEUR_DROIT, vitesse);
+    tourne(MOTEUR_GAUCHE, vitesse);
+    while(valeurUltra > distance)
+    {
+        afficheErreurInt(valeurUltra);
+        valeurVisuel =  Sensor(CAPTEUR_VISUEL);
+        if(!determineVitesseMoteur(valeurVisuel, vitesse, droite))
+            afficheErreur("perte de la ligne");
+        // On récupère la distance actuelle à chaque tour
+        valeurUltra = SensorUS(CAPTEUR_ULTRA);
+    }
+    stopMoteur();
+
+}
+
 // Le fait de faire tourner les moteurs à l'envers si nécessaire permettra peut-être de suivre les
 // lignes en marche arrière et améliore de toute facon le suivi.
-bool determineVitesseMoteur(int valeurVisuel, int vitesse)
+
+// les commentaires sont écrits dans le cas droite = true
+bool determineVitesseMoteur(int valeurVisuel, int vitesse, bool droite)
 {
-    int valeurGauche = 25; // proche du noir
-    int valeurDroite = 35; // proche du blanc
+    // valeurs à ajuster pour que le robot aille plus vite
+    int valeurNoir = 0.5*(NOIR+BLANC) -5; // proche du noir
+    int valeurBlanc = 0.5*(NOIR+BLANC) +5; // proche du blanc
 
     bool reponse = true;
-    if(valeurVisuel <= valeurDroite && valeurVisuel >= valeurGauche)
+    if(valeurVisuel <= valeurBlanc && valeurVisuel >= valeurNoir)
     {
+        // On va à fond.
         tourne(MOTEUR_DROIT, vitesse);
         tourne(MOTEUR_GAUCHE, vitesse);
     }
-    else if (valeurVisuel < valeurGauche) // On est dans le noir , donc à gauche, le moteur droit ralentit
+    else if (valeurVisuel < valeurNoir) // On est dans le noir , donc trop à gauche, le moteur droit ralentit
     {
+        // On corrige proportionnellement.
+        float coeff = (2*valeurVisuel - (valeurNoir+NOIR))/(valeurNoir - NOIR);
+        // Le moteur n'avance pas entre -20 et 20, on n'utilise pas ces valeurs :
+        coeff += signe(coeff)*0.25;
+        coeff /= 1.25;
+        if(droite)
+        {
+            tourne(MOTEUR_GAUCHE, vitesse);
+            tourne(MOTEUR_DROIT, coeff * vitesse);
+        }
+        else
+        {
+            tourne(MOTEUR_DROIT, vitesse);
+            tourne(MOTEUR_GAUCHE, coeff * vitesse);
+        }
+    }
+    else if (valeurVisuel > valeurBlanc) // On est dans le blanc, donc trop à droite, le moteur gauche ralentit
+    {
+        float coeff = (2*valeurVisuel - (valeurBlanc+BLANC))/(valeurBlanc - BLANC);
+        // Le moteur n'avance pas entre -20 et 20, on n'utilise pas ces valeurs :
+        coeff += signe(coeff)*0.25;
+        coeff /= 1.25;
 
-        int vitesseCalculee = vitesse *((2*valeurVisuel - (valeurGauche+NOIR))/(valeurGauche - NOIR));
-        tourne(MOTEUR_GAUCHE, vitesse);
-        tourne(MOTEUR_DROIT, vitesseCalculee);
-    }
-    else if (valeurVisuel > valeurDroite) // On est dans le blanc, donc à droite, le moteur gauche ralentit
-    {
-        int vitesseCalculee = vitesse * ((2*valeurVisuel - (valeurDroite+BLANC))/(valeurDroite - BLANC));
-        tourne(MOTEUR_DROIT, vitesse);
-        tourne(MOTEUR_GAUCHE, vitesseCalculee);
+        if(droite)
+        {
+            tourne(MOTEUR_DROIT, vitesse);
+            tourne(MOTEUR_GAUCHE, coeff * vitesse);
+        }
+        else
+        {
+            tourne(MOTEUR_GAUCHE, vitesse);
+            tourne(MOTEUR_DROIT, coeff * vitesse);
+        }
     }
     if(valeurVisuel < (NOIR+2) || valeurVisuel > (BLANC-2))
             reponse = false;
     return reponse;
 
 }
-void suitLaLigneEnReculant(int temps, int vitesse) // à droite de la ligne
+void suitLaLigneEnReculant(int temps, int vitesse, bool droite = true) // à droite de la ligne
 {
-    suitLaLigneEnAvancant(temps, -vitesse);
+    suitLaLigneEnAvancant(temps, -vitesse, droite);
 }
 
-// A ne pas utiliser si il n'y a pas de ligne devant.
-void avanceJusquALigne()
+// A ne pas utiliser si il n'y a pas de noir devant.
+void avanceJusquANoir(int vitesse)
 {
-    tourne(MOTEUR_DROIT, MAX);
-    tourne(MOTEUR_GAUCHE, MAX);
-    int valeurVisuel = BLANC;
-    while(valeurVisuel > BLANC-10)
-    {
-        valeurVisuel = Sensor(CAPTEUR_VISUEL);
-    }
+    avanceSynchro(vitesse);
+
+    while(Sensor(CAPTEUR_VISUEL) > NOIR + 5)
+        ;
     stopMoteur();
+}
+void reculeJusquANoir(int vitesse)
+{
+    reculeSynchro(vitesse);
+
+    while(Sensor(CAPTEUR_VISUEL) > NOIR + 5)
+        ;
+    stopMoteur();
+}
+void avanceJusquAPasBlanc(int vitesse) // Rouge ou bleu
+{
+    avanceSynchro(vitesse);
+
+    while(Sensor(CAPTEUR_VISUEL) > BLANC - 5)
+        ;
+    stopMoteur();
+}
+void avanceJusquABlanc(int vitesse)
+{
+    avanceSynchro(vitesse);
+
+    while(Sensor(CAPTEUR_VISUEL) < BLANC - 10)
+        ;
+    stopMoteur();
+}
+void reculeJusquABlanc(int vitesse)
+{
+    reculeSynchro(vitesse);
+
+    while(Sensor(CAPTEUR_VISUEL) < BLANC - 10)
+        ;
+    stopMoteur();
+}
+// A ne pas utiliser si on n'est pas près d'une ligne
+void chercheLigne(int vitesse)
+{
+    demiTour(vitesse);
 }
 // A ne pas utiliser si on n'est pas sur une ligne
 void demiTour(int vitesse)
@@ -96,11 +181,31 @@ void demiTour(int vitesse)
 
     while(Sensor(CAPTEUR_VISUEL) < BLANC -10)
         ;
-    while(Sensor(CAPTEUR_VISUEL) > BLANC -15)
+    while(Sensor(CAPTEUR_VISUEL) > NOIR + 5)
         ;
+    // A priori inutile.
+    /*while(Sensor(CAPTEUR_VISUEL) < NOIR + 10)
+        ;*/
 
     stopMoteur();
 
+}
+// sert à changer entre le suivi à gauche et le suivi à droite
+// droite vaut true si on vient de droite et false si on vient de gauche.
+void milieuLigne(bool droite)
+{
+    if(droite)
+    {
+        tourne(MOTEUR_DROIT, MAX);
+        tourne(MOTEUR_GAUCHE, -MAX);
+    }
+    else
+    {
+        tourne(MOTEUR_GAUCHE, MAX);
+        tourne(MOTEUR_DROIT, -MAX);
+    }
+    while(Sensor(CAPTEUR_VISUEL) > NOIR + 10)
+        ;
 }
 
 #endif

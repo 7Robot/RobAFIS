@@ -5,8 +5,8 @@
 
 void stopMoteur()
 {
-    tourne(MOTEUR_DROIT, MIN);
-    tourne(MOTEUR_GAUCHE, MIN);
+    Stop(MOTEUR_DROIT);
+    Stop(MOTEUR_GAUCHE);
 }
 task arretDurgence()
 {
@@ -15,7 +15,7 @@ task arretDurgence()
 	    int valeurContact = Sensor(CAPTEUR_CONTACT);
 		if(valeurContact)
 			StopAllTasks();
-        Wait(10);
+        Wait(50);
 	}
 }
 void afficheCapteurs()
@@ -35,33 +35,31 @@ void afficheCapteurs()
 void attendDepart()
 {
     while(!Sensor(CAPTEUR_CONTACT))
-        Wait(10);
+        Wait(50);
     while(Sensor(CAPTEUR_CONTACT))
-        Wait(10);
+        Wait(50);
 }
 void remontePince(int valeur)
 {
-    RotateMotor(PINCE, 30, valeur);
+    RotateMotor(PINCE, VITESSE_PINCE, valeur);
 }
 void descendPince(int valeur)
 {
     remontePince(-valeur);
 }
-void avancePendant(int temps, int puiss)
+void avancePendant(int temps, int vitesse)
 {
-    tourne(MOTEUR_DROIT, puiss);
-    tourne(MOTEUR_GAUCHE, puiss);
+    avanceSynchro(vitesse);
     Wait(temps);
-    Stop(MOTEUR_DROIT);
-    Stop(MOTEUR_GAUCHE);
+    stopMoteur();
 }
 void arrete(byte moteur)
 {
     tourne(moteur, MIN);
 }
-void reculePendant(int temps, int puiss)
+void reculePendant(int temps, int vitesse)
 {
-    avancePendant(temps, -puiss);
+    avancePendant(temps, -vitesse);
 }
 
 void afficheErreur(string erreur)
@@ -72,14 +70,16 @@ void afficheErreurInt(int erreur)
 {
     NumOut(0, LCD_LINE8, erreur);
 }
-void tourne(byte moteur, int puiss)
+void tourne(byte moteur, int vitesse)
 {
-    OnFwd(moteur, puiss);
+    OnFwd(moteur, vitesse);
 }
 void initialiseCapteurs()
 {
     SetSensorTouch(CAPTEUR_CONTACT);
     //SetSensorLowspeed(CAPTEUR_ULTRA);
+
+    // Le capteur bleu est peut-être plus intéressant.
     SetSensorColorRed(CAPTEUR_VISUEL);
 }
 void revient()
@@ -91,6 +91,34 @@ void echange(int& val1, int& val2)
     val1 = val2;
     val2 = temp;
 }
+int determineCouleur()
+{
 
+
+    return NOIRE;
+}
+int signe(float valeur)
+{
+    if(valeur < 0)
+        return -1;
+    return 1;
+}
+void avanceSynchro(int vitesse)
+{
+    OnFwdReg(MOTEURS, vitesse, OUT_REGMODE_SPEED);
+}
+void reculeSynchro(int vitesse)
+{
+    OnRevReg(MOTEURS, vitesse, OUT_REGMODE_SPEED);
+}
+void tourneDroite(int angle)
+{
+    RotateMotor(MOTEUR_GAUCHE, MAX, 1000);
+    RotateMotor(MOTEUR_DROIT, MAX, -1000);
+}
+void tourneGauche(int angle)
+{
+    tourneDroite(-angle);
+}
 
 #endif

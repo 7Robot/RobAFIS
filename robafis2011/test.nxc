@@ -9,14 +9,6 @@
 #include "lib.h"
 #include "lib.nxc"
 
-/*
- rien n'a été testé.
- L'idée c'est que peut-être on peut se passer d'un détecteur de couleur évolué et d'un système de localisation
- juste en suivant les lignes du bon coté.
- pas de gestion des obstacles.
-
- pour compiler : nbc main.nxc
-*/
 
 task main()
 {
@@ -27,11 +19,7 @@ task main()
 void mission()
 {
 
-    rameneCentre1();
-    stockePetit();
-    rameneCentre2();
-    stockeGrand();
-
+    avanceJusquANoir(MAX);
     StopAllTasks();
 }
 void rameneCentre1()
