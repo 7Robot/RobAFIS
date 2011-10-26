@@ -1,0 +1,106 @@
+#ifndef SUIVEURNXC
+#define SUIVEURNXC
+
+/*
+Capteur rouge :
+50      -> 10
+blanc   -> noir
+
+
+*/
+
+#include "suiveur.h"
+#include "main.h"
+#include "lib.h"
+
+void suitLaLigneEnAvancant(int temps, int vitesse) // à droite de la ligne
+{
+    int tempsDepart = CurrentTick();
+    int tempsPasse = 0;
+    int valeurVisuel;
+
+    /*Capteur rouge :
+50      -> 10
+blanc   -> noir
+*/
+// suit la ligne à droite
+
+    tourne(MOTEUR_DROIT, vitesse);
+    tourne(MOTEUR_GAUCHE, vitesse);
+    while(tempsPasse < temps)
+    {
+        afficheErreurInt(tempsPasse);
+        valeurVisuel =  Sensor(CAPTEUR_VISUEL);
+        if(!determineVitesseMoteur(valeurVisuel, vitesse))
+            afficheErreur("perte de la ligne");
+
+        tempsPasse = CurrentTick() - tempsDepart;
+    }
+    stopMoteur();
+
+}
+// Le fait de faire tourner les moteurs à l'envers si nécessaire permettra peut-être de suivre les
+// lignes en marche arrière et améliore de toute facon le suivi.
+bool determineVitesseMoteur(int valeurVisuel, int vitesse)
+{
+    int valeurGauche = 25; // proche du noir
+    int valeurDroite = 35; // proche du blanc
+
+    bool reponse = true;
+    if(valeurVisuel <= valeurDroite && valeurVisuel >= valeurGauche)
+    {
+        tourne(MOTEUR_DROIT, vitesse);
+        tourne(MOTEUR_GAUCHE, vitesse);
+    }
+    else if (valeurVisuel < valeurGauche) // On est dans le noir , donc à gauche, le moteur droit ralentit
+    {
+
+        int vitesseCalculee = vitesse *((2*valeurVisuel - (valeurGauche+NOIR))/(valeurGauche - NOIR));
+        tourne(MOTEUR_GAUCHE, vitesse);
+        tourne(MOTEUR_DROIT, vitesseCalculee);
+    }
+    else if (valeurVisuel > valeurDroite) // On est dans le blanc, donc à droite, le moteur gauche ralentit
+    {
+        int vitesseCalculee = vitesse * ((2*valeurVisuel - (valeurDroite+BLANC))/(valeurDroite - BLANC));
+        tourne(MOTEUR_DROIT, vitesse);
+        tourne(MOTEUR_GAUCHE, vitesseCalculee);
+    }
+    if(valeurVisuel < (NOIR+2) || valeurVisuel > (BLANC-2))
+            reponse = false;
+    return reponse;
+
+}
+void suitLaLigneEnReculant(int temps, int vitesse) // à droite de la ligne
+{
+    suitLaLigneEnAvancant(temps, -vitesse);
+}
+
+// A ne pas utiliser si il n'y a pas de ligne devant.
+void avanceJusquALigne()
+{
+    tourne(MOTEUR_DROIT, MAX);
+    tourne(MOTEUR_GAUCHE, MAX);
+    int valeurVisuel = BLANC;
+    while(valeurVisuel > BLANC-10)
+    {
+        valeurVisuel = Sensor(CAPTEUR_VISUEL);
+    }
+    stopMoteur();
+}
+// A ne pas utiliser si on n'est pas sur une ligne
+void demiTour(int vitesse)
+{
+
+    tourne(MOTEUR_DROIT, vitesse);
+    tourne(MOTEUR_GAUCHE, -vitesse);
+
+    while(Sensor(CAPTEUR_VISUEL) < BLANC -10)
+        ;
+    while(Sensor(CAPTEUR_VISUEL) > BLANC -15)
+        ;
+
+    stopMoteur();
+
+}
+
+#endif

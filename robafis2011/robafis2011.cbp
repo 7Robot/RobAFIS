@@ -44,8 +44,12 @@
 		<Compiler>
 			<Add option="-Wall" />
 		</Compiler>
+		<Unit filename="lib.h" />
+		<Unit filename="lib.nxc" />
 		<Unit filename="main.h" />
 		<Unit filename="main.nxc" />
+		<Unit filename="suiveur.h" />
+		<Unit filename="suiveur.nxc" />
 		<Extensions>
 			<envvars />
 			<code_completion />

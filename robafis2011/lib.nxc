@@ -1,0 +1,96 @@
+#ifndef LIBNXC
+#define LIBNXC
+
+
+
+void stopMoteur()
+{
+    tourne(MOTEUR_DROIT, MIN);
+    tourne(MOTEUR_GAUCHE, MIN);
+}
+task arretDurgence()
+{
+	while(true)
+	{
+	    int valeurContact = Sensor(CAPTEUR_CONTACT);
+		if(valeurContact)
+			StopAllTasks();
+        Wait(10);
+	}
+}
+void afficheCapteurs()
+{
+    int valeurUltra = SensorUS(CAPTEUR_ULTRA);
+    int valeurContact = Sensor(CAPTEUR_CONTACT);
+    int valeurVisuel =  Sensor(CAPTEUR_VISUEL);
+
+    TextOut(0, LCD_LINE2, "capteur de contact : ");
+    TextOut(0, LCD_LINE4, "capteur ultrasons : ");
+    TextOut(0, LCD_LINE6, "capteur visuel : ");
+
+    NumOut(20, LCD_LINE3, valeurContact);
+    NumOut(20, LCD_LINE5, valeurUltra);
+    NumOut(20, LCD_LINE7, valeurVisuel);
+}
+void attendDepart()
+{
+    while(!Sensor(CAPTEUR_CONTACT))
+        Wait(10);
+    while(Sensor(CAPTEUR_CONTACT))
+        Wait(10);
+}
+void remontePince(int valeur)
+{
+    RotateMotor(PINCE, 30, valeur);
+}
+void descendPince(int valeur)
+{
+    remontePince(-valeur);
+}
+void avancePendant(int temps, int puiss)
+{
+    tourne(MOTEUR_DROIT, puiss);
+    tourne(MOTEUR_GAUCHE, puiss);
+    Wait(temps);
+    Stop(MOTEUR_DROIT);
+    Stop(MOTEUR_GAUCHE);
+}
+void arrete(byte moteur)
+{
+    tourne(moteur, MIN);
+}
+void reculePendant(int temps, int puiss)
+{
+    avancePendant(temps, -puiss);
+}
+
+void afficheErreur(string erreur)
+{
+    TextOut(0, LCD_LINE8, erreur);
+}
+void afficheErreurInt(int erreur)
+{
+    NumOut(0, LCD_LINE8, erreur);
+}
+void tourne(byte moteur, int puiss)
+{
+    OnFwd(moteur, puiss);
+}
+void initialiseCapteurs()
+{
+    SetSensorTouch(CAPTEUR_CONTACT);
+    //SetSensorLowspeed(CAPTEUR_ULTRA);
+    SetSensorColorRed(CAPTEUR_VISUEL);
+}
+void revient()
+{
+}
+void echange(int& val1, int& val2)
+{
+    int temp = val1;
+    val1 = val2;
+    val2 = temp;
+}
+
+
+#endif
