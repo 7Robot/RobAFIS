@@ -61,16 +61,24 @@ Quelques ajouts/différences par rapport au C :
 #define INFINI              3600000     // une heure
 #define MAX                 100         // 100%
 #define MIN                 0           // 0%
-#define ANGLE_PINCE         50          // 40°
+#define ANGLE_PINCE         40          // 40°
 #define VITESSE_PINCE       30
 #define ANGLE_QUART_DE_TOUR 1000        // à déterminer
 #define NOIR                10
 #define BLANC               50
+#define DISTANCE_OBSTACLE   15
 
 void mission();
 
-void rameneCentre1();
-void rameneCentre2();
+bool cherchePetitRapide(bool reussi, bool petitDansCentre1);
+bool chercheGrandRapide(bool reussi, bool petitDansCentre1);
+bool cherchePetitLent(bool reussi, bool petitDansCentre1);
+bool chercheGrandLent(bool reussi, bool petitDansCentre1);
+
+bool rameneCentre1Rapide(bool reussi);
+bool rameneCentre2Rapide(bool reussi);
+bool rameneCentre1Lent(bool reussi);
+bool rameneCentre2Lent(bool reussi);
 void stockePetit();
 void stockeGrand();
 

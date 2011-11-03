@@ -5,8 +5,8 @@
 
 void stopMoteur()
 {
-    Stop(MOTEUR_DROIT);
-    Stop(MOTEUR_GAUCHE);
+    Off(MOTEUR_DROIT);
+    Off(MOTEUR_GAUCHE);
 }
 task arretDurgence()
 {
@@ -18,34 +18,56 @@ task arretDurgence()
         Wait(50);
 	}
 }
-void afficheCapteurs()
+task afficheCapteurs()
 {
-    int valeurUltra = SensorUS(CAPTEUR_ULTRA);
-    int valeurContact = Sensor(CAPTEUR_CONTACT);
-    int valeurVisuel =  Sensor(CAPTEUR_VISUEL);
-
     TextOut(0, LCD_LINE2, "capteur de contact : ");
     TextOut(0, LCD_LINE4, "capteur ultrasons : ");
     TextOut(0, LCD_LINE6, "capteur visuel : ");
 
-    NumOut(20, LCD_LINE3, valeurContact);
-    NumOut(20, LCD_LINE5, valeurUltra);
-    NumOut(20, LCD_LINE7, valeurVisuel);
+    int valeurUltra;
+    int valeurContact;
+    int valeurVisuel;
+
+    while(true)
+    {
+        valeurUltra = SensorUS(CAPTEUR_ULTRA);
+        valeurContact = Sensor(CAPTEUR_CONTACT);
+        valeurVisuel =  Sensor(CAPTEUR_VISUEL);
+
+        NumOut(20, LCD_LINE3, valeurContact);
+        NumOut(20, LCD_LINE5, valeurUltra);
+        NumOut(20, LCD_LINE7, valeurVisuel);
+
+        Wait(100);
+    }
 }
-void attendDepart()
+bool attendDepart()
 {
+    /*
     while(!Sensor(CAPTEUR_CONTACT))
         Wait(50);
     while(Sensor(CAPTEUR_CONTACT))
+        Wait(50);*/
+    bool retour;
+
+    TextOut(0, LCD_LINE2, "Appuyez à gauche si les petits sont dans la file 1.");
+    TextOut(0, LCD_LINE4, "Appuyez à droite si les grands sont dans la file 1.");
+
+    while(!ButtonPressed(BTNRIGHT, false) && !ButtonPressed(BTNLEFT, false))
+    {
+        retour = ButtonPressed(BTNLEFT, false);
         Wait(50);
+    }
+    ClearScreen();
+    return retour;
 }
-void remontePince(int valeur)
+void remontePince(int vitesse = VITESSE_PINCE, int valeur = ANGLE_PINCE)
 {
-    RotateMotor(PINCE, VITESSE_PINCE, valeur);
+    RotateMotor(PINCE, vitesse, valeur);
 }
-void descendPince(int valeur)
+void descendPince(int vitesse = VITESSE_PINCE, int valeur = ANGLE_PINCE)
 {
-    remontePince(-valeur);
+    remontePince(vitesse, -valeur);
 }
 void avancePendant(int temps, int vitesse)
 {
@@ -113,8 +135,8 @@ void reculeSynchro(int vitesse)
 }
 void tourneDroite(int angle)
 {
-    RotateMotor(MOTEUR_GAUCHE, MAX, 1000);
-    RotateMotor(MOTEUR_DROIT, MAX, -1000);
+    RotateMotor(MOTEUR_GAUCHE, MAX, angle);
+    RotateMotor(MOTEUR_DROIT, MAX, -angle);
 }
 void tourneGauche(int angle)
 {

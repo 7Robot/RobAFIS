@@ -2,7 +2,6 @@
 #define MAINNXC
 
 
-
 #include "main.h"
 #include "suiveur.h"
 #include "suiveur.nxc"
@@ -13,66 +12,201 @@
  rien n'a été testé.
  L'idée c'est que peut-être on peut se passer d'un détecteur de couleur évolué et d'un système de localisation
  juste en suivant les lignes du bon coté.
- pas de gestion des obstacles.
+ gestion des obstacles.
 
  pour compiler : nbc main.nxc
 */
 
+
 task main()
 {
-    initialiseCapteurs();
-    attendDepart();
-    Precedes(arretDurgence, afficheCapteurs, mission);
+    Precedes(arretDurgence, mission);
 }
 void mission()
 {
+    bool petitDansCentre1 = attendDepart();
+    initialiseCapteurs();
 
-    rameneCentre1();
-    stockePetit();
-    rameneCentre2();
-    stockeGrand();
+    StartTask(afficheCapteurs);
 
+    bool petitRecupere = cherchePetitRapide(true, petitDansCentre1);
+    if(petitRecupere)
+        stockePetit();
+    bool grandRecupere = chercheGrandRapide(petitRecupere, petitDansCentre1);
+    if(grandRecupere)
+        stockeGrand();
+    if(!petitRecupere && !grandRecupere)
+    {
+        afficheErreur("Le chemin est bloqué des 2 cotés, on abandonne.");
+    }
+    else if(!petitRecupere)
+    {
+        cherchePetitLent(true, petitDansCentre1);
+        stockePetit();
+    }
+    else
+    {
+        chercheGrandLent(true, petitDansCentre1);
+        stockeGrand();
+    }
     StopAllTasks();
 }
-void rameneCentre1()
+bool cherchePetitRapide(bool reussi, bool petitDansCentre1)
+{
+    if(petitDansCentre1)
+        return rameneCentre1Rapide(reussi);
+    else
+        return rameneCentre2Rapide(reussi);
+}
+bool chercheGrandRapide(bool reussi, bool petitDansCentre1)
+{
+    return cherchePetitRapide(reussi, !petitDansCentre1);
+}
+bool cherchePetitLent(bool reussi, bool petitDansCentre1)
+{
+    if(petitDansCentre1)
+        return rameneCentre1Lent(reussi);
+    else
+        return rameneCentre2Lent(reussi);
+}
+bool chercheGrandLent(bool reussi, bool petitDansCentre1)
+{
+    return cherchePetitLent(reussi, !petitDansCentre1);
+}
+bool rameneCentre1Rapide(bool reussi)
 {
     // On part de la zone de repos, orienté vers le sud
-    avanceJusquAPasBlanc(MAX);
-    suitLaLigneEnAvancant(1000, MAX, false); // par la gauche
+    if(reussi)
+    {
+        avancePendant(500, MAX);
+        tourneGauche(ANGLE_QUART_DE_TOUR/4);
+        avanceJusquAPasBlanc(MAX);
+    }
+    int nbTournant = 2;
+    bool reussite = suitLaLigneEnAvancantTournant(nbTournant, MAX, true);
+    if(reussite)
+    {
+        stopMoteur();
+        descendPince(MAX);
+        suitLaLigneEnAvancantDistance(15, MAX, true);
+        //stopMoteur();
+        suitLaLigneEnAvancant(2000, MAX, true);
+        stopMoteur();
+        remontePince();
+        demiTour(MAX);
+        suitLaLigneEnAvancantTournant(nbTournant, MAX, false);
+        suitLaLigneEnAvancantDistance(62, MAX, false);
+        tourneDroite(ANGLE_QUART_DE_TOUR);
+        avanceJusquANoir(MAX);
+        avancePendant(200, MAX);
+    }
+    else
+    {
+        demiTour(MAX);
+        suitLaLigneEnAvancantTournant(nbTournant, MAX, false);
+        suitLaLigneEnAvancantDistance(62, MAX, false);
+        milieuLigne(false);
+    }
+    return reussite;
+}
+bool rameneCentre2Rapide(bool reussi)
+{
+    // On part de la zone de repos, orienté vers le sud
+    if(reussi)
+    {
+        avancePendant(500, MAX);
+        tourneDroite(ANGLE_QUART_DE_TOUR/4);
+        avanceJusquAPasBlanc(MAX);
+    }
+    int nbTournant = 2;
+    bool reussite = suitLaLigneEnAvancantTournant(nbTournant, MAX, false);
+    if(reussite)
+    {
+        stopMoteur();
+        descendPince(MAX);
+        suitLaLigneEnAvancantDistance(20, MAX, false);
+        milieuLigne(false);
+        suitLaLigneEnAvancantDistance(15, MAX, true);
+        //stopMoteur();
+        suitLaLigneEnAvancant(2000, MAX, true);
+        stopMoteur();
+        remontePince();
+        demiTour(MAX);
+        suitLaLigneEnAvancantTournant(nbTournant, MAX, true);
+        suitLaLigneEnAvancantDistance(62, MAX, true);
+        tourneGauche(ANGLE_QUART_DE_TOUR);
+        avanceJusquANoir(MAX);
+        avancePendant(200, MAX);
+    }
+    else
+    {
+        demiTour(MAX);
+        suitLaLigneEnAvancantTournant(nbTournant, MAX, true);
+        suitLaLigneEnAvancantDistance(62, MAX, true);
+        milieuLigne(true);
+    }
+    return reussite;
+}
+bool rameneCentre1Lent(bool reussi)
+{
+    // On part de la zone de repos, orienté ves le sud
+    if(reussi)
+    {
+        avancePendant(500, MAX);
+        tourneDroite(ANGLE_QUART_DE_TOUR/4);
+        avanceJusquAPasBlanc(MAX);
+    }
+    int nbTournant = 4;
+    suitLaLigneEnAvancantTournant(nbTournant, MAX, true);
+    milieuLigne(true);
+    nbTournant = 1;
+    suitLaLigneEnAvancantTournant(nbTournant, MAX, false);
+    descendPince(MAX);
+    suitLaLigneEnAvancantDistance(20, MAX, false);
     milieuLigne(false);
-    suitLaLigneEnAvancantDistance(100, MAX, true); // par la droite ; bug potentiellement à cause du jaune
+    suitLaLigneEnAvancantDistance(15, MAX, true);
+    suitLaLigneEnAvancant(2000, MAX, true);
     stopMoteur();
-    descendPince(ANGLE_PINCE);
-    suitLaLigneEnAvancant(2000, MAX, true); // obligatoirement par la droite pour chopper les élements
-    stopMoteur();
-    remontePince(ANGLE_PINCE);
+    remontePince();
     demiTour(MAX);
-    suitLaLigneEnAvancant(3000, MAX, false);
-    milieuLigne(false);
-    suitLaLigneEnAvancantDistance(620, MAX, true);
-    tourneDroite(ANGLE_QUART_DE_TOUR);
+    nbTournant = 3;
+    suitLaLigneEnAvancantTournant(nbTournant, MAX, true);
+    milieuLigne(true);
+    nbTournant--;
+    suitLaLigneEnAvancantTournant(nbTournant, MAX, false);
+    suitLaLigneEnAvancantDistance(62, MAX, false);
+    tourneGauche(ANGLE_QUART_DE_TOUR);
     avanceJusquANoir(MAX);
     avancePendant(200, MAX);
+
 }
-void rameneCentre2()
+bool rameneCentre2Lent(bool reussi)
 {
-    // On part de la zone de repos, orienté vers le sud
-    avanceJusquAPasBlanc(MAX);
-    suitLaLigneEnAvancant(1000, MAX, true); // par la droite
-    milieuLigne(true);
-    suitLaLigneEnAvancantDistance(150, MAX, false); // par la gauche ; bug potentiellement à cause du jaune
+    // On part de la zone de repos, orienté ves le sud
+    if(reussi)
+    {
+        avancePendant(500, MAX);
+        tourneGauche(ANGLE_QUART_DE_TOUR/4);
+        avanceJusquAPasBlanc(MAX);
+    }
+    int nbTournant = 4;
+    suitLaLigneEnAvancantTournant(nbTournant, MAX, false);
     milieuLigne(false);
-    suitLaLigneEnAvancantDistance(100, MAX, true);
+    nbTournant = 1;
+    suitLaLigneEnAvancantTournant(nbTournant, MAX, true);
+    descendPince(MAX);
+    suitLaLigneEnAvancantDistance(15, MAX, true);
+    suitLaLigneEnAvancant(2000, MAX, true);
     stopMoteur();
-    descendPince(ANGLE_PINCE);
-    suitLaLigneEnAvancant(2000, MAX, true); // obligatoirement par la droite pour chopper les élements
-    stopMoteur();
-    remontePince(ANGLE_PINCE);
+    remontePince();
     demiTour(MAX);
-    suitLaLigneEnAvancant(3000, MAX, true);
+    nbTournant = 3;
+    suitLaLigneEnAvancantTournant(nbTournant, MAX, false);
     milieuLigne(false);
-    suitLaLigneEnAvancantDistance(620, MAX, false);
-    tourneGauche(ANGLE_QUART_DE_TOUR);
+    nbTournant--;
+    suitLaLigneEnAvancantTournant(nbTournant, MAX, true);
+    suitLaLigneEnAvancantDistance(62, MAX, true);
+    tourneDroite(ANGLE_QUART_DE_TOUR);
     avanceJusquANoir(MAX);
     avancePendant(200, MAX);
 }

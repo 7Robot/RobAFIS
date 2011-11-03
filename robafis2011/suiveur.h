@@ -4,8 +4,9 @@
 
 
 void suitLaLigneEnAvancant(int temps, int vitesse, bool droite = true);
+bool suitLaLigneEnAvancantTournant(int& nbTournant, int vitesse, bool droite = true);
 void suitLaLigneEnAvancantDistance(int distance, int vitesse, bool droite = true);
-bool determineVitesseMoteur(int valeurVisuel, int vitesse, bool droite);
+bool determineVitesseMoteur(int valeurVisuel, int vitesse, bool droite, int& depassementNoir, int& depassementBlanc);
 void suitLaLigneEnReculant(int temps, int vitesse, bool droite = true);
 void avanceJusquANoir(int vitesse);
 void avanceJusquAPasBlanc(int vitesse);

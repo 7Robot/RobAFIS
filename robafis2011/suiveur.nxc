@@ -23,14 +23,14 @@ void suitLaLigneEnAvancant(int temps, int vitesse, bool droite = true) // à pri
 50      -> 10
 blanc   -> noir
 */
-
     tourne(MOTEUR_DROIT, vitesse);
     tourne(MOTEUR_GAUCHE, vitesse);
     while(tempsPasse < temps)
     {
         afficheErreurInt(tempsPasse);
         valeurVisuel =  Sensor(CAPTEUR_VISUEL);
-        if(!determineVitesseMoteur(valeurVisuel, vitesse, droite))
+        int inutile;
+        if(!determineVitesseMoteur(valeurVisuel, vitesse, droite, inutile, inutile))
             afficheErreur("perte de la ligne");
         // On recalcule le temps passé à chaque tour.
         tempsPasse = CurrentTick() - tempsDepart;
@@ -38,6 +38,59 @@ blanc   -> noir
     stopMoteur();
 
 }
+// permet de suivre une ligne pendant un certain nombre de tournant.
+// Si il y a un obstacle, false est renvoyé et nbTournant vaut le nombre de tournant avant l'obstacle
+bool suitLaLigneEnAvancantTournant(int& nbTournant, int vitesse, bool droite = true)
+{
+    int valeurVisuel;
+    int tempsDepart = CurrentTick();
+    int tempsPasse = 0;
+    /*Capteur rouge :
+50      -> 10
+blanc   -> noir
+*/
+    int valeurUltra = SensorUS(CAPTEUR_ULTRA);
+
+    int nbTournantActuel = 0;
+    int depassementBlanc = 0;
+    int depassementNoir = 0;
+    tourne(MOTEUR_DROIT, vitesse);
+    tourne(MOTEUR_GAUCHE, vitesse);
+    while(nbTournantActuel != nbTournant && valeurUltra > DISTANCE_OBSTACLE)
+    {
+        afficheErreurInt(nbTournantActuel);
+        valeurVisuel =  Sensor(CAPTEUR_VISUEL);
+
+        if(!determineVitesseMoteur(valeurVisuel, vitesse, droite, depassementNoir, depassementBlanc))
+            afficheErreur("perte de la ligne");
+        // On recalcule le temps passé à chaque tour pour éviter de compter un tournant au démarrage.
+        tempsPasse = CurrentTick() - tempsDepart;
+        if(tempsPasse < 500)
+        {
+            depassementBlanc = 0;
+            depassementNoir = 0;
+        }
+        // On recalcule le nombre de tournant à chaque tour.
+        if(depassementBlanc == 4 || depassementNoir == 4)
+            nbTournantActuel++;
+
+        valeurUltra = SensorUS(CAPTEUR_ULTRA);
+
+    }
+
+    stopMoteur();
+    if(nbTournantActuel == nbTournant)
+    {
+        suitLaLigneEnAvancant(200, vitesse, droite);
+        return true;
+    }
+    else
+    {
+        nbTournant = nbTournantActuel;
+        return false;
+    }
+}
+// permet de suivre la ligne juqu'à une certaine distance d'un obstacle
 void suitLaLigneEnAvancantDistance(int distance, int vitesse, bool droite = true) // à priori à droite de la ligne
 {
 
@@ -54,7 +107,8 @@ blanc   -> noir
     {
         afficheErreurInt(valeurUltra);
         valeurVisuel =  Sensor(CAPTEUR_VISUEL);
-        if(!determineVitesseMoteur(valeurVisuel, vitesse, droite))
+        int inutile;
+        if(!determineVitesseMoteur(valeurVisuel, vitesse, droite, inutile, inutile))
             afficheErreur("perte de la ligne");
         // On récupère la distance actuelle à chaque tour
         valeurUltra = SensorUS(CAPTEUR_ULTRA);
@@ -62,12 +116,12 @@ blanc   -> noir
     stopMoteur();
 
 }
-
+// envoie aux moteurs les ordres nécessaires pour suivre la ligne. remonte les informations de dépassement via
+// les variables depassementBlanc et depassementNoir
 // Le fait de faire tourner les moteurs à l'envers si nécessaire permettra peut-être de suivre les
 // lignes en marche arrière et améliore de toute facon le suivi.
-
 // les commentaires sont écrits dans le cas droite = true
-bool determineVitesseMoteur(int valeurVisuel, int vitesse, bool droite)
+bool determineVitesseMoteur(int valeurVisuel, int vitesse, bool droite, int& depassementNoir, int& depassementBlanc)
 {
     // valeurs à ajuster pour que le robot aille plus vite
     int valeurNoir = 0.5*(NOIR+BLANC) -5; // proche du noir
@@ -79,6 +133,8 @@ bool determineVitesseMoteur(int valeurVisuel, int vitesse, bool droite)
         // On va à fond.
         tourne(MOTEUR_DROIT, vitesse);
         tourne(MOTEUR_GAUCHE, vitesse);
+        depassementBlanc = 0;
+        depassementNoir = 0;
     }
     else if (valeurVisuel < valeurNoir) // On est dans le noir , donc trop à gauche, le moteur droit ralentit
     {
@@ -97,6 +153,8 @@ bool determineVitesseMoteur(int valeurVisuel, int vitesse, bool droite)
             tourne(MOTEUR_DROIT, vitesse);
             tourne(MOTEUR_GAUCHE, coeff * vitesse);
         }
+        depassementBlanc = 0;
+        depassementNoir++;
     }
     else if (valeurVisuel > valeurBlanc) // On est dans le blanc, donc trop à droite, le moteur gauche ralentit
     {
@@ -115,6 +173,8 @@ bool determineVitesseMoteur(int valeurVisuel, int vitesse, bool droite)
             tourne(MOTEUR_GAUCHE, vitesse);
             tourne(MOTEUR_DROIT, coeff * vitesse);
         }
+        depassementNoir = 0;
+        depassementBlanc++;
     }
     if(valeurVisuel < (NOIR+2) || valeurVisuel > (BLANC-2))
             reponse = false;
