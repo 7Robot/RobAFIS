@@ -1,11 +1,13 @@
 #ifndef LIBH
 #define LIBH
 
-enum {BLANCHE, NOIRE, VERTE, JAUNE, GRISE};
+enum {GAUCHE, DROITE, NON_CONNU};
+enum {VERT, JAUNE, GRIS, ROUGE, BLEU};
 
-task arretDurgence();
+task arretDUrgence();
 task afficheCapteurs();
-bool attendDepart();
+bool recupereTypeFile();
+int recupereChoixDirection();
 void afficheErreurInt(int erreur);
 void remontePince(int vitesse = VITESSE_PINCE, int valeur = ANGLE_PINCE);
 void descendPince(int vitesse = VITESSE_PINCE, int valeur = ANGLE_PINCE);
@@ -19,11 +21,15 @@ void initialiseCapteurs();
 void revient();
 void stopMoteur();
 void echange(int& val1, int& val2);
-int determineCouleur();
-int signe(float valeur);
+float signe(float valeur);
 void avanceSynchro(int vitesse);
 void reculeSynchro(int vitesse);
-void tourneDroite(int angle);
+void tourneDroite(int angle, int vitesse = MAX);
 void tourneGauche(int angle);
+void verifieBatterie();
+void bloquePince();
+int recupereBleu();
+int recupereRouge();
+int recupereCouleur(int coul);
 
 #endif

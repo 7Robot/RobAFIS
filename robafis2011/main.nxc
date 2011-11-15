@@ -9,7 +9,7 @@
 #include "lib.nxc"
 
 /*
- rien n'a été testé.
+ Des choses ont été testé.
  L'idée c'est que peut-être on peut se passer d'un détecteur de couleur évolué et d'un système de localisation
  juste en suivant les lignes du bon coté.
  gestion des obstacles.
@@ -20,35 +20,68 @@
 
 task main()
 {
-    Precedes(arretDurgence, mission);
+    StartTask(mission);
 }
-void mission()
+task mission()
 {
-    bool petitDansCentre1 = attendDepart();
+    verifieBatterie();
+
     initialiseCapteurs();
-
     StartTask(afficheCapteurs);
-
-    bool petitRecupere = cherchePetitRapide(true, petitDansCentre1);
-    if(petitRecupere)
-        stockePetit();
-    bool grandRecupere = chercheGrandRapide(petitRecupere, petitDansCentre1);
-    if(grandRecupere)
-        stockeGrand();
-    if(!petitRecupere && !grandRecupere)
+    StartTask(arretDUrgence);
+    bloquePince();
+    //for(int i = 0;i<4;i++)
+    //tourneDroite(ANGLE_QUART_DE_TOUR);
+    //Wait(30000);
+    suitLaLigneEnAvancantCouleur(JAUNE, MAX, true);
+    demiTour(MAX);
+    suitLaLigneEnAvancantCouleur(VERT, true);
+    /*
+    initialiseCapteurs();
+    StartTask(arretDUrgence);
+    bloquePince();
+    bool petitDansCentre1 = recupereTypeFile();
+    int passage = recupereChoixDirection();
+    ClearScreen();
+    StartTask(afficheCapteurs);
+    if(passage == NON_CONNU)
     {
-        afficheErreur("Le chemin est bloqué des 2 cotés, on abandonne.");
+        bool petitRecupere = cherchePetitRapide(true, petitDansCentre1);
+        if(petitRecupere)
+            stockePetit();
+        bool grandRecupere = chercheGrandRapide(petitRecupere, petitDansCentre1);
+        if(grandRecupere)
+            stockeGrand();
+        if(!petitRecupere && !grandRecupere)
+        {
+            afficheErreur("Le chemin est bloqué des 2 cotés, on abandonne.");
+        }
+        else if(!petitRecupere)
+        {
+            cherchePetitLent(true, petitDansCentre1);
+            stockePetit();
+        }
+        else
+        {
+            chercheGrandLent(true, petitDansCentre1);
+            stockeGrand();
+        }
     }
-    else if(!petitRecupere)
+    else if ((passage == DROITE && petitDansCentre1) || (passage==GAUCHE && !petitDansCentre1))
     {
+        chercheGrandRapide(true, petitDansCentre1);
+        stockeGrand();
         cherchePetitLent(true, petitDansCentre1);
         stockePetit();
     }
     else
     {
+        cherchePetitRapide(true, petitDansCentre1);
+        stockePetit();
         chercheGrandLent(true, petitDansCentre1);
         stockeGrand();
     }
+    */
     StopAllTasks();
 }
 bool cherchePetitRapide(bool reussi, bool petitDansCentre1)
@@ -82,8 +115,7 @@ bool rameneCentre1Rapide(bool reussi)
         tourneGauche(ANGLE_QUART_DE_TOUR/4);
         avanceJusquAPasBlanc(MAX);
     }
-    int nbTournant = 2;
-    bool reussite = suitLaLigneEnAvancantTournant(nbTournant, MAX, true);
+    bool reussite = suitLaLigneEnAvancantCouleur(JAUNE, MAX, true);
     if(reussite)
     {
         stopMoteur();
@@ -94,8 +126,7 @@ bool rameneCentre1Rapide(bool reussi)
         stopMoteur();
         remontePince();
         demiTour(MAX);
-        suitLaLigneEnAvancantTournant(nbTournant, MAX, false);
-        suitLaLigneEnAvancantDistance(62, MAX, false);
+        suitLaLigneEnAvancantCouleur(VERT, MAX, false);
         tourneDroite(ANGLE_QUART_DE_TOUR);
         avanceJusquANoir(MAX);
         avancePendant(200, MAX);
@@ -103,8 +134,7 @@ bool rameneCentre1Rapide(bool reussi)
     else
     {
         demiTour(MAX);
-        suitLaLigneEnAvancantTournant(nbTournant, MAX, false);
-        suitLaLigneEnAvancantDistance(62, MAX, false);
+        suitLaLigneEnAvancantCouleur(VERT, MAX, false);
         milieuLigne(false);
     }
     return reussite;
@@ -118,8 +148,7 @@ bool rameneCentre2Rapide(bool reussi)
         tourneDroite(ANGLE_QUART_DE_TOUR/4);
         avanceJusquAPasBlanc(MAX);
     }
-    int nbTournant = 2;
-    bool reussite = suitLaLigneEnAvancantTournant(nbTournant, MAX, false);
+    bool reussite = suitLaLigneEnAvancantCouleur(JAUNE, MAX, false);
     if(reussite)
     {
         stopMoteur();
@@ -132,8 +161,7 @@ bool rameneCentre2Rapide(bool reussi)
         stopMoteur();
         remontePince();
         demiTour(MAX);
-        suitLaLigneEnAvancantTournant(nbTournant, MAX, true);
-        suitLaLigneEnAvancantDistance(62, MAX, true);
+        suitLaLigneEnAvancantCouleur(VERT, MAX, true);
         tourneGauche(ANGLE_QUART_DE_TOUR);
         avanceJusquANoir(MAX);
         avancePendant(200, MAX);
@@ -141,8 +169,7 @@ bool rameneCentre2Rapide(bool reussi)
     else
     {
         demiTour(MAX);
-        suitLaLigneEnAvancantTournant(nbTournant, MAX, true);
-        suitLaLigneEnAvancantDistance(62, MAX, true);
+        suitLaLigneEnAvancantCouleur(VERT, MAX, true);
         milieuLigne(true);
     }
     return reussite;
@@ -156,25 +183,23 @@ bool rameneCentre1Lent(bool reussi)
         tourneDroite(ANGLE_QUART_DE_TOUR/4);
         avanceJusquAPasBlanc(MAX);
     }
-    int nbTournant = 4;
-    suitLaLigneEnAvancantTournant(nbTournant, MAX, true);
+    suitLaLigneEnAvancantCouleur(JAUNE, MAX, true);
+    suitLaLigneEnAvancant(2000, MAX, true);
     milieuLigne(true);
-    nbTournant = 1;
-    suitLaLigneEnAvancantTournant(nbTournant, MAX, false);
-    descendPince(MAX);
+    suitLaLigneEnAvancantCouleur(JAUNE, MAX, false);
     suitLaLigneEnAvancantDistance(20, MAX, false);
+    stopMoteur();
+    descendPince(MAX);
     milieuLigne(false);
     suitLaLigneEnAvancantDistance(15, MAX, true);
     suitLaLigneEnAvancant(2000, MAX, true);
     stopMoteur();
     remontePince();
     demiTour(MAX);
-    nbTournant = 3;
-    suitLaLigneEnAvancantTournant(nbTournant, MAX, true);
+    suitLaLigneEnAvancantCouleur(JAUNE, MAX, true);
+    suitLaLigneEnAvancant(2000, MAX, true);
     milieuLigne(true);
-    nbTournant--;
-    suitLaLigneEnAvancantTournant(nbTournant, MAX, false);
-    suitLaLigneEnAvancantDistance(62, MAX, false);
+    suitLaLigneEnAvancantCouleur(VERT, MAX, false);
     tourneGauche(ANGLE_QUART_DE_TOUR);
     avanceJusquANoir(MAX);
     avancePendant(200, MAX);
@@ -189,23 +214,22 @@ bool rameneCentre2Lent(bool reussi)
         tourneGauche(ANGLE_QUART_DE_TOUR/4);
         avanceJusquAPasBlanc(MAX);
     }
-    int nbTournant = 4;
-    suitLaLigneEnAvancantTournant(nbTournant, MAX, false);
+    suitLaLigneEnAvancantCouleur(JAUNE, MAX, false);
+    suitLaLigneEnAvancant(2000, MAX, false);
     milieuLigne(false);
-    nbTournant = 1;
-    suitLaLigneEnAvancantTournant(nbTournant, MAX, true);
+    suitLaLigneEnAvancantCouleur(JAUNE, MAX, true);
+    suitLaLigneEnAvancantDistance(20, MAX, true);
+    stopMoteur();
     descendPince(MAX);
     suitLaLigneEnAvancantDistance(15, MAX, true);
     suitLaLigneEnAvancant(2000, MAX, true);
     stopMoteur();
     remontePince();
     demiTour(MAX);
-    nbTournant = 3;
-    suitLaLigneEnAvancantTournant(nbTournant, MAX, false);
+    suitLaLigneEnAvancantCouleur(JAUNE, MAX, false);
+    suitLaLigneEnAvancant(2000, MAX, false);
     milieuLigne(false);
-    nbTournant--;
-    suitLaLigneEnAvancantTournant(nbTournant, MAX, true);
-    suitLaLigneEnAvancantDistance(62, MAX, true);
+    suitLaLigneEnAvancantCouleur(VERT, MAX, true);
     tourneDroite(ANGLE_QUART_DE_TOUR);
     avanceJusquANoir(MAX);
     avancePendant(200, MAX);
@@ -227,17 +251,16 @@ void stockeGrand()
 {
     // On part de la zone de repos, orienté vers le nord
     tourneGauche(ANGLE_QUART_DE_TOUR);
-    avanceJusquABlanc(MAX);
-    avanceJusquAPasBlanc(MAX);
+    avanceJusquABlanc(MAX, ROUGE);
+    avanceJusquAPasBlanc(MAX, ROUGE);
     stopMoteur();
     descendPince(ANGLE_PINCE);
-    reculeJusquABlanc(MAX);
+    reculeJusquABlanc(MAX, ROUGE);
     reculeJusquANoir(MAX);
     stopMoteur();
     remontePince(ANGLE_PINCE);
     tourneGauche(ANGLE_QUART_DE_TOUR);
 }
-
 
 
 

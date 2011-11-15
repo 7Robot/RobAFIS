@@ -1,7 +1,14 @@
+/*
+Copyright 2011 club 7robot de l'N7
+Code réutilisable librement sous les termes de la licence GPLv3 disponible à l'adresse :
+http://www.gnu.org/licenses/gpl.txt
+
+*/
 #ifndef MAINH
 #define MAINH
 
 /*
+
 
 codé pour la compétition robAfis 2011 pour le club 7robot de l'N7.
 Le robot sait :
@@ -13,21 +20,12 @@ Le robot sait :
 - afficher des erreurs sur l'écran pour le debug
 - avancer (ou reculer) pendant un certain temps sans se soucier des lignes.
 - s'arrêter
-
-Le robot ne sait pas encore :
-- reculer en suivant une ligne pendant un certain temps
-- suivre une ligne (en avancant ou en reculant) jusqu'à ce que l'on arrive sur un carrefour
 - avancer en suivant une ligne juqu'à une certaine distance d'un mur
 - avancer jusqu'à ce qu'il rencontre une ligne
-- chercher une ligne
 - détecter un obstacle
-- détecter la couleur d'une intersection
-- se repérer sur le plateau (connaitre son emplacement actuel).
 - faire demi-tour sur une ligne.
-- tourner à une intersection
 
 Le robot ne saura sans doute jamais :
-- détecter les pièces
 - savoir si il a réussi à prendre les pièces ou non
 - savoir si il a réussi à poser les pièces au bon endroit ou non
 
@@ -58,17 +56,19 @@ Quelques ajouts/différences par rapport au C :
 #define MOTEURS             OUT_AB
 #define PINCE               OUT_C
 
-#define INFINI              3600000     // une heure
+#define INFINI              60000       // une minute
 #define MAX                 100         // 100%
 #define MIN                 0           // 0%
-#define ANGLE_PINCE         40          // 40°
+#define ANGLE_PINCE         50          // 80°
 #define VITESSE_PINCE       30
-#define ANGLE_QUART_DE_TOUR 1000        // à déterminer
-#define NOIR                10
-#define BLANC               50
-#define DISTANCE_OBSTACLE   15
+#define ANGLE_QUART_DE_TOUR 390         // déterminé
+#define BUG                 1.15
+#define NOIR                60.0
+#define BLANC               150.0
+#define DISTANCE_OBSTACLE   20
+#define TOLERANCE_SUIVEUR   5.0         // dans le blanc et dans le noir
 
-void mission();
+task mission();
 
 bool cherchePetitRapide(bool reussi, bool petitDansCentre1);
 bool chercheGrandRapide(bool reussi, bool petitDansCentre1);

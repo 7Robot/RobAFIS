@@ -12,14 +12,30 @@
 
 task main()
 {
-    initialiseCapteurs();
-    attendDepart();
-    Precedes(arretDurgence, afficheCapteurs, mission);
+    Precedes(arretDurgence, mission);
 }
 void mission()
 {
-
-    avanceJusquANoir(MAX);
+    // A tester : BatteryState et SetBatteryState
+    verifieBatterie();
+    /*descendPince(30, ANGLE_PINCE);
+    Wait(1000);
+    remontePince(20, ANGLE_PINCE);*/
+    //initialiseCapteurs();
+    tourne(MOTEUR_DROIT, MAX);
+    tourne(MOTEUR_GAUCHE, MAX);
+    StartTask(afficheCapteurs);
+    //tourne(MOTEUR_DROIT, MAX);
+    //Wait(10000);
+    /*tourne(MOTEUR_DROIT, MAX/4);
+    tourne(MOTEUR_GAUCHE, MAX/4);
+    Wait(400);*/
+    //tourneDroite(ANGLE_QUART_DE_TOUR*4);
+    //avancePendant(5000, MAX);
+    suitLaLigneEnAvancant(40000, MAX, true);
+    stopMoteur();
+    Wait(100000);
+    //avanceJusquANoir(MAX);
     StopAllTasks();
 }
 void rameneCentre1()

@@ -8,40 +8,52 @@ void stopMoteur()
     Off(MOTEUR_DROIT);
     Off(MOTEUR_GAUCHE);
 }
-task arretDurgence()
+task arretDUrgence()
 {
-	while(true)
+
+	/*while(true)
 	{
+
 	    int valeurContact = Sensor(CAPTEUR_CONTACT);
 		if(valeurContact)
 			StopAllTasks();
-        Wait(50);
-	}
+        Wait(100);
+	}*/
 }
 task afficheCapteurs()
 {
-    TextOut(0, LCD_LINE2, "capteur de contact : ");
-    TextOut(0, LCD_LINE4, "capteur ultrasons : ");
-    TextOut(0, LCD_LINE6, "capteur visuel : ");
+    ClearScreen();
+    TextOut(0, LCD_LINE1, "capteur ultrasons : ");
+    TextOut(0, LCD_LINE2, "               ");
+    TextOut(0, LCD_LINE3, "Rouge");
+    TextOut(0, LCD_LINE4, "                ");
+    TextOut(0, LCD_LINE5, "Vert");
+    TextOut(0, LCD_LINE6, "                ");
+    TextOut(0, LCD_LINE7, "Bleu");
+    TextOut(0, LCD_LINE8, "                ");
 
     int valeurUltra;
-    int valeurContact;
-    int valeurVisuel;
+    unsigned int valeurVisuel[];
 
     while(true)
     {
+        TextOut(0, LCD_LINE2, "               ");
+        TextOut(0, LCD_LINE2, "               ");
+        TextOut(0, LCD_LINE6, "                ");
+        TextOut(0, LCD_LINE8, "                ");
+
+        ReadSensorColorRaw (CAPTEUR_VISUEL, valeurVisuel)
         valeurUltra = SensorUS(CAPTEUR_ULTRA);
-        valeurContact = Sensor(CAPTEUR_CONTACT);
-        valeurVisuel =  Sensor(CAPTEUR_VISUEL);
 
-        NumOut(20, LCD_LINE3, valeurContact);
-        NumOut(20, LCD_LINE5, valeurUltra);
-        NumOut(20, LCD_LINE7, valeurVisuel);
+        NumOut(0, LCD_LINE2, valeurUltra);
+        NumOut(0, LCD_LINE4, valeurVisuel[INPUT_RED]);
+        NumOut(0, LCD_LINE6, valeurVisuel[INPUT_GREEN]);
+        NumOut(0, LCD_LINE8, valeurVisuel[INPUT_BLUE]);
 
-        Wait(100);
+        Wait(200);
     }
 }
-bool attendDepart()
+bool recupereTypeFile()
 {
     /*
     while(!Sensor(CAPTEUR_CONTACT))
@@ -50,8 +62,12 @@ bool attendDepart()
         Wait(50);*/
     bool retour;
 
-    TextOut(0, LCD_LINE2, "Appuyez à gauche si les petits sont dans la file 1.");
-    TextOut(0, LCD_LINE4, "Appuyez à droite si les grands sont dans la file 1.");
+    TextOut(0, LCD_LINE1, "Appuyez à gauche");
+    TextOut(0, LCD_LINE2, "si les petits sont");
+    TextOut(0, LCD_LINE3, "dans la file 1.(gauche)");
+    TextOut(0, LCD_LINE5, "Appuyez à droite");
+    TextOut(0, LCD_LINE6, "si les grands sont");
+    TextOut(0, LCD_LINE7, "dans la file 1.(gauche)");
 
     while(!ButtonPressed(BTNRIGHT, false) && !ButtonPressed(BTNLEFT, false))
     {
@@ -61,9 +77,35 @@ bool attendDepart()
     ClearScreen();
     return retour;
 }
+int recupereChoixDirection()
+{
+    /*
+    while(!Sensor(CAPTEUR_CONTACT))
+        Wait(50);
+    while(Sensor(CAPTEUR_CONTACT))
+        Wait(50);*/
+
+    TextOut(0, LCD_LINE1, "passage à droite :");
+    TextOut(0, LCD_LINE2, "bouton droit");
+    TextOut(0, LCD_LINE4, "passage à gauche :");
+    TextOut(0, LCD_LINE5, "bouton gauche");
+    TextOut(0, LCD_LINE7, "pas de préférence");
+    TextOut(0, LCD_LINE8, "bouton milieu");
+
+    while(!ButtonPressed(BTNRIGHT, false) && !ButtonPressed(BTNLEFT, false) && !ButtonPressed(BTNCENTER, false))
+    {
+        if(ButtonPressed(BTNRIGHT, false))
+            return DROITE;
+        else if (ButtonPressed(BTNLEFT, false))
+            return GAUCHE;
+        else if (ButtonPressed(BTNCENTER, false))
+            return NON_CONNU;
+        Wait(50);
+    }
+}
 void remontePince(int vitesse = VITESSE_PINCE, int valeur = ANGLE_PINCE)
 {
-    RotateMotor(PINCE, vitesse, valeur);
+    RotateMotorEx(PINCE, vitesse, valeur, 100, false, true);
 }
 void descendPince(int vitesse = VITESSE_PINCE, int valeur = ANGLE_PINCE)
 {
@@ -98,11 +140,11 @@ void tourne(byte moteur, int vitesse)
 }
 void initialiseCapteurs()
 {
-    SetSensorTouch(CAPTEUR_CONTACT);
-    //SetSensorLowspeed(CAPTEUR_ULTRA);
+   // SetSensorTouch(CAPTEUR_CONTACT);
+    SetSensorLowspeed(CAPTEUR_ULTRA);
 
-    // Le capteur bleu est peut-être plus intéressant.
-    SetSensorColorRed(CAPTEUR_VISUEL);
+    // Le capteur bleu est plus intéressant.
+    SetSensorColorFull(CAPTEUR_VISUEL);
 }
 void revient()
 {
@@ -113,13 +155,8 @@ void echange(int& val1, int& val2)
     val1 = val2;
     val2 = temp;
 }
-int determineCouleur()
-{
 
-
-    return NOIRE;
-}
-int signe(float valeur)
+float signe(float valeur)
 {
     if(valeur < 0)
         return -1;
@@ -127,20 +164,51 @@ int signe(float valeur)
 }
 void avanceSynchro(int vitesse)
 {
-    OnFwdReg(MOTEURS, vitesse, OUT_REGMODE_SPEED);
+    OnFwdReg(MOTEURS, vitesse, OUT_REGMODE_SYNC);
 }
 void reculeSynchro(int vitesse)
 {
-    OnRevReg(MOTEURS, vitesse, OUT_REGMODE_SPEED);
+    OnRevReg(MOTEURS, vitesse, OUT_REGMODE_SYNC);
 }
-void tourneDroite(int angle)
+void tourneDroite(int angle, int vitesse = MAX)
 {
-    RotateMotor(MOTEUR_GAUCHE, MAX, angle);
-    RotateMotor(MOTEUR_DROIT, MAX, -angle);
+    RotateMotorEx(MOTEURS, vitesse*0.6, angle, -100, true, true);
 }
 void tourneGauche(int angle)
 {
-    tourneDroite(-angle);
+    RotateMotorEx(MOTEURS, MAX*0.6, angle*BUG, 100, true, true);
 }
-
+void verifieBatterie()
+{
+    unsigned int millivolts = BatteryLevel();
+    if(millivolts < 6900)
+    {
+            PlayTone(2000, 3000);
+            PlayTone(400, 500);
+            afficheErreur("batterie faible");
+    }
+}
+void bloquePince()
+{
+    remontePince(MAX, 0);
+}
+int recupereBleu()
+{
+    unsigned int tabVisuel[];
+    ReadSensorColorRaw(CAPTEUR_VISUEL, tabVisuel);
+    return tabVisuel[INPUT_BLUE];
+}
+int recupereRouge()
+{
+    unsigned int tabVisuel[];
+    ReadSensorColorRaw(CAPTEUR_VISUEL, tabVisuel);
+    return tabVisuel[INPUT_RED];
+}
+int recupereCouleur(int coul)
+{
+    if(coul==BLEU)
+        return recupereBleu();
+    else
+        return recupereRouge();
+}
 #endif
