@@ -59,14 +59,15 @@ Quelques ajouts/différences par rapport au C :
 #define INFINI              60000       // une minute
 #define MAX                 100         // 100%
 #define MIN                 0           // 0%
-#define ANGLE_PINCE         50          // 80°
-#define VITESSE_PINCE       30
+#define ANGLE_PINCE         40          // 80°
+#define VITESSE_PINCE       25
+#define TEMPS_PINCE         ANGLE_PINCE *10
 #define ANGLE_QUART_DE_TOUR 390         // déterminé
 #define BUG                 1.15
-#define NOIR                60.0
-#define BLANC               150.0
+#define NOIR                170.0
+#define BLANC               420.0
 #define DISTANCE_OBSTACLE   20
-#define TOLERANCE_SUIVEUR   5.0         // dans le blanc et dans le noir
+#define TOLERANCE_SUIVEUR   30.0         // dans le blanc et dans le noir
 
 task mission();
 

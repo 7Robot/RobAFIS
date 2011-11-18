@@ -17,20 +17,19 @@ void suitLaLigneEnAvancant(int temps, int vitesse, bool droite = true) // à pri
 {
     int tempsDepart = CurrentTick();
     int tempsPasse = 0;
-    unsigned int valeurVisuel[];
+    unsigned int tabVisuel[];
 
     /*Capteur rouge :
 50      -> 10
 blanc   -> noir
 */
-    tourne(MOTEUR_DROIT, vitesse);
-    tourne(MOTEUR_GAUCHE, vitesse);
     //Wait(500);*/
     while(tempsPasse < temps)
     {
         afficheErreurInt(tempsPasse);
-        ReadSensorColorRaw (CAPTEUR_VISUEL, valeurVisuel)
-        if(!determineVitesseMoteur(valeurVisuel, GRIS, vitesse, droite))
+        ReadSensorColorRaw (CAPTEUR_VISUEL, tabVisuel);
+        int valBleu = tabVisuel[INPUT_BLUE];
+        if(!determineVitesseMoteur(valBleu, vitesse, droite))
             afficheErreur("perte de la ligne");
         // On recalcule le temps passé à chaque tour.
         tempsPasse = CurrentTick() - tempsDepart;
@@ -51,8 +50,7 @@ blanc   -> noir
 */
     int valeurUltra = SensorUS(CAPTEUR_ULTRA);
 
-    tourne(MOTEUR_DROIT, vitesse);
-    tourne(MOTEUR_GAUCHE, vitesse);
+
     while(valeurUltra > DISTANCE_OBSTACLE)
     {
         //valeurVisuel =  Sensor(CAPTEUR_VISUEL);
@@ -67,10 +65,10 @@ blanc   -> noir
 
         // On recalcule le nombre de tournant à chaque tour.
 
-        if(valeurVisuel < NOIR+40)
+        if(valeurVisuel < NOIR+80)
         {
             afficheErreurInt(valeurVisuel);
-            if(valRouge>110 && valRouge < 200 && valVert > 60 && valVert < 150 && valBleu < 90)
+            if(valRouge>350 && valVert > 350)
             {
                 if(couleur == JAUNE)
                 {
@@ -79,7 +77,7 @@ blanc   -> noir
                 }
 
             }
-            else if(valRouge < 100 && valBleu < 70 && valVert > 120)
+            else if(valRouge < 250 && valBleu < 250 && valVert > 300)
             {
                 if(couleur == VERT)
                 {
@@ -90,7 +88,7 @@ blanc   -> noir
             tempsDepart = CurrentTick();
         }
 
-        if(!determineVitesseMoteur(valeurVisuel, couleur, vitesse, droite))
+        if(!determineVitesseMoteur(valeurVisuel, vitesse, droite))
             afficheErreur("perte de la ligne");
 
 
@@ -111,20 +109,19 @@ blanc   -> noir
 void suitLaLigneEnAvancantDistance(int distance, int vitesse, bool droite = true) // à priori à droite de la ligne
 {
 
-    unsigned int valeurVisuel[];
+    unsigned int tabVisuel[];
     int valeurUltra = SensorUS(CAPTEUR_ULTRA);
     /*Capteur rouge :
 50      -> 10
 blanc   -> noir
 */
 
-    tourne(MOTEUR_DROIT, vitesse);
-    tourne(MOTEUR_GAUCHE, vitesse);
     while(valeurUltra > distance)
     {
         afficheErreurInt(valeurUltra);
-        ReadSensorColorRaw (CAPTEUR_VISUEL, valeurVisuel)
-        if(!determineVitesseMoteur(valeurVisuel, GRIS, vitesse, droite))
+        ReadSensorColorRaw(CAPTEUR_VISUEL, tabVisuel);
+        int valBleu = tabVisuel[INPUT_BLUE];
+        if(!determineVitesseMoteur(valBleu, vitesse, droite))
             afficheErreur("perte de la ligne");
         // On récupère la distance actuelle à chaque tour
         valeurUltra = SensorUS(CAPTEUR_ULTRA);
@@ -137,7 +134,7 @@ blanc   -> noir
 // Le fait de faire tourner les moteurs à l'envers si nécessaire permettra peut-être de suivre les
 // lignes en marche arrière et améliore de toute facon le suivi.
 // les commentaires sont écrits dans le cas droite = true
-bool determineVitesseMoteur(unsigned int valeurVisuel, int couleur, int vitesse, bool droite)
+bool determineVitesseMoteur(unsigned int valeurVisuel, int vitesse, bool droite)
 {
     // valeurs à ajuster pour que le robot aille plus vite
     int valeurNoir = 0.5*(NOIR+BLANC) - TOLERANCE_SUIVEUR; // proche du noir
@@ -217,7 +214,7 @@ void suitLaLigneEnReculant(int temps, int vitesse, bool droite = true) // à dro
 void avanceJusquANoir(int vitesse, int couleur = BLEU)
 {
     avanceSynchro(vitesse);
-    while(recupereCouleur(couleur) > NOIR + 40)
+    while(recupereCouleur(couleur) > NOIR + 100)
         ;
     stopMoteur();
 }
@@ -229,7 +226,7 @@ void avanceJusquAPasBlanc(int vitesse, int couleur = BLEU) // Rouge ou bleu
 {
     avanceSynchro(vitesse);
 
-    while(recupereCouleur(couleur) > BLANC - 40)
+    while(recupereCouleur(couleur) > BLANC - 100)
         ;
     stopMoteur();
 }
@@ -237,7 +234,7 @@ void avanceJusquABlanc(int vitesse, int couleur = BLEU)
 {
     avanceSynchro(vitesse);
 
-    while(recupereCouleur(couleur) < BLANC - 40)
+    while(recupereCouleur(couleur) < BLANC - 100)
         ;
     stopMoteur();
 }
@@ -257,9 +254,9 @@ void demiTour(int vitesse)
     tourne(MOTEUR_DROIT, vitesse);
     tourne(MOTEUR_GAUCHE, -vitesse);
 
-    while(Sensor(CAPTEUR_VISUEL) < BLANC -40)
+    while(recupereCouleur(BLEU) < BLANC -50)
         ;
-    while(Sensor(CAPTEUR_VISUEL) > NOIR + 60)
+    while(recupereCouleur(BLEU) > NOIR + 50)
         ;
     // A priori inutile.
     /*while(Sensor(CAPTEUR_VISUEL) < NOIR + 10)
@@ -282,7 +279,7 @@ void milieuLigne(bool droite)
         tourne(MOTEUR_GAUCHE, MAX);
         tourne(MOTEUR_DROIT, -MAX);
     }
-    while(Sensor(CAPTEUR_VISUEL) > NOIR + 40)
+    while(Sensor(CAPTEUR_VISUEL) > NOIR + 50)
         ;
     stopMoteur();
 }

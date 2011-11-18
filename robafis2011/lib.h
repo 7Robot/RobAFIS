@@ -27,7 +27,7 @@ void reculeSynchro(int vitesse);
 void tourneDroite(int angle, int vitesse = MAX);
 void tourneGauche(int angle);
 void verifieBatterie();
-void bloquePince();
+task bloquePince();
 int recupereBleu();
 int recupereRouge();
 int recupereCouleur(int coul);

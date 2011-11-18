@@ -6,7 +6,7 @@
 void suitLaLigneEnAvancant(int temps, int vitesse, bool droite = true);
 bool suitLaLigneEnAvancantCouleur(int couleur, int vitesse, bool droite = true, bool detection = false);
 void suitLaLigneEnAvancantDistance(int distance, int vitesse, bool droite = true);
-bool determineVitesseMoteur(unsigned int valeurVisuel, int couleur, int vitesse, bool droite);
+bool determineVitesseMoteur(unsigned int valeurVisuel, int vitesse, bool droite);
 void corrige(float vitesse, float valeurVisuel, float valeurNoir, float valeurBlanc, int droite);
 void suitLaLigneEnReculant(int temps, int vitesse, bool droite = true);
 void avanceJusquANoir(int vitesse, int couleur = BLEU);

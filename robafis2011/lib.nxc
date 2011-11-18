@@ -103,13 +103,25 @@ int recupereChoixDirection()
         Wait(50);
     }
 }
+task bloquePince()
+{
+    tourne(PINCE, 0);
+    Wait(MIN_1);
+    Wait(MIN_1);
+    Wait(MIN_1);
+    Wait(MIN_1);
+}
 void remontePince(int vitesse = VITESSE_PINCE, int valeur = ANGLE_PINCE)
 {
-    RotateMotorEx(PINCE, vitesse, valeur, 100, false, true);
+    tourne(PINCE, -VITESSE_PINCE);
+    Wait(TEMPS_PINCE);
+    tourne(PINCE, 0);
 }
 void descendPince(int vitesse = VITESSE_PINCE, int valeur = ANGLE_PINCE)
 {
-    remontePince(vitesse, -valeur);
+    tourne(PINCE, VITESSE_PINCE);
+    Wait(TEMPS_PINCE);
+    tourne(PINCE, 0);
 }
 void avancePendant(int temps, int vitesse)
 {
@@ -187,10 +199,6 @@ void verifieBatterie()
             PlayTone(400, 500);
             afficheErreur("batterie faible");
     }
-}
-void bloquePince()
-{
-    remontePince(MAX, 0);
 }
 int recupereBleu()
 {

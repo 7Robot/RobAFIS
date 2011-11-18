@@ -26,24 +26,19 @@ task mission()
 {
     verifieBatterie();
 
-    initialiseCapteurs();
-    StartTask(afficheCapteurs);
-    StartTask(arretDUrgence);
-    bloquePince();
-    //for(int i = 0;i<4;i++)
-    //tourneDroite(ANGLE_QUART_DE_TOUR);
-    //Wait(30000);
-    suitLaLigneEnAvancantCouleur(JAUNE, MAX, true);
-    demiTour(MAX);
-    suitLaLigneEnAvancantCouleur(VERT, true);
-    /*
+
+
     initialiseCapteurs();
     StartTask(arretDUrgence);
-    bloquePince();
-    bool petitDansCentre1 = recupereTypeFile();
-    int passage = recupereChoixDirection();
+
+    bool petitDansCentre1 = true;
+    int passage = NON_CONNU;
     ClearScreen();
     StartTask(afficheCapteurs);
+
+    cherchePetitRapide(true, petitDansCentre1);
+    stockePetit();
+    /*
     if(passage == NON_CONNU)
     {
         bool petitRecupere = cherchePetitRapide(true, petitDansCentre1);
@@ -81,7 +76,7 @@ task mission()
         chercheGrandLent(true, petitDansCentre1);
         stockeGrand();
     }
-    */
+*/
     StopAllTasks();
 }
 bool cherchePetitRapide(bool reussi, bool petitDansCentre1)
@@ -108,28 +103,38 @@ bool chercheGrandLent(bool reussi, bool petitDansCentre1)
 }
 bool rameneCentre1Rapide(bool reussi)
 {
+     StartTask(bloquePince);
     // On part de la zone de repos, orienté vers le sud
     if(reussi)
     {
         avancePendant(500, MAX);
+        avanceJusquABlanc(MAX);
         tourneGauche(ANGLE_QUART_DE_TOUR/4);
         avanceJusquAPasBlanc(MAX);
+        tourneGauche(ANGLE_QUART_DE_TOUR/4);
+        avanceJusquANoir(MAX);
     }
     bool reussite = suitLaLigneEnAvancantCouleur(JAUNE, MAX, true);
     if(reussite)
     {
+        avancePendant(500, MAX);
+        tourneDroite(ANGLE_QUART_DE_TOUR*1.1);
+       // avanceJusquANoir(MAX);
         stopMoteur();
+        //StopTask(bloquePince);
+
         descendPince(MAX);
-        suitLaLigneEnAvancantDistance(15, MAX, true);
+        suitLaLigneEnAvancantDistance(DISTANCE_OBSTACLE, MAX*0.6, true);
         //stopMoteur();
-        suitLaLigneEnAvancant(2000, MAX, true);
+        //suitLaLigneEnAvancant(2000, MAX, true);
         stopMoteur();
         remontePince();
-        demiTour(MAX);
+        tourneDroite(2*ANGLE_QUART_DE_TOUR*0.9, MAX);
         suitLaLigneEnAvancantCouleur(VERT, MAX, false);
+        avancePendant(500, MAX);
         tourneDroite(ANGLE_QUART_DE_TOUR);
         avanceJusquANoir(MAX);
-        avancePendant(200, MAX);
+        avancePendant(1500, MAX);
     }
     else
     {
@@ -240,6 +245,7 @@ void stockePetit()
     tourneDroite(ANGLE_QUART_DE_TOUR);
     avanceJusquABlanc(MAX);
     avanceJusquAPasBlanc(MAX);
+    avancePendant(500);
     stopMoteur();
     descendPince(ANGLE_PINCE);
     reculeJusquABlanc(MAX);
@@ -253,6 +259,7 @@ void stockeGrand()
     tourneGauche(ANGLE_QUART_DE_TOUR);
     avanceJusquABlanc(MAX, ROUGE);
     avanceJusquAPasBlanc(MAX, ROUGE);
+    avancePendant(500);
     stopMoteur();
     descendPince(ANGLE_PINCE);
     reculeJusquABlanc(MAX, ROUGE);
