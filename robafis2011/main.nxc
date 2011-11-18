@@ -245,7 +245,7 @@ void stockePetit()
     tourneDroite(ANGLE_QUART_DE_TOUR);
     avanceJusquABlanc(MAX);
     avanceJusquAPasBlanc(MAX);
-    avancePendant(500);
+    avancePendant(500, MAX);
     stopMoteur();
     descendPince(ANGLE_PINCE);
     reculeJusquABlanc(MAX);
@@ -259,7 +259,7 @@ void stockeGrand()
     tourneGauche(ANGLE_QUART_DE_TOUR);
     avanceJusquABlanc(MAX, ROUGE);
     avanceJusquAPasBlanc(MAX, ROUGE);
-    avancePendant(500);
+    avancePendant(500, MAX);
     stopMoteur();
     descendPince(ANGLE_PINCE);
     reculeJusquABlanc(MAX, ROUGE);
